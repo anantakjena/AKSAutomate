@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: captureorder  
+spec:
+  selector:
+      matchLabels:
+        app: captureorder
+  replicas: 1
+  template:
+      metadata:
+        labels:
+            app: captureorder
+      spec:
+        containers:
+        - name: captureorder
+          image: akswkshpacr.azurecr.io/captureorder:v1.0.0
+          imagePullPolicy: Always          
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: /healthz
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /healthz
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+          env:          
+          - name: MONGOHOST
+            valueFrom:
+                secretKeyRef:
+                  key: mongohost
+                  name: aksworkshop-mongo-secret
+          - name: MONGOUSER
+            valueFrom:
+                secretKeyRef:
+                  key: mongouser
+                  name: aksworkshop-mongo-secret
+          - name: MONGOPASSWORD
+            valueFrom:
+                secretKeyRef:
+                  key: mongopassword
+                  name: aksworkshop-mongo-secret          
+          ports:
+          - containerPort: 8080
+        imagePullSecrets:
+          - name: aksworkshop-secret

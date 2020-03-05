@@ -1,0 +1,19 @@
+az container create -g aks-workshop-rg -n loadtest --image=azch/loadtest --restart-policy=Never -e SERVICE_ENDPOINT=http://52.152.201.28
+az container logs -g aks-workshop-rg -n loadtest
+az container delete -g aks-workshop-rg -n loadtest
+az container show -n loadtest -g aks-workshop-rg
+
+helm install orders-mongo stable/mongodb --set mongodbUsername=orders-user,mongodbPassword=orders-password,mongodbDatabase=akschallenge
+
+k create secret generic aksworkshop-mongo-secret --from-literal=mongohost=orders-mongo-mongodb.default.svc.cluster.local --from-literal=mongouser=orders-user --from-literal=mongopassword=orders-password
+
+curl -d '{"EmailAddress": "email@domain.com", "Product": "prod-1", "Total": 100}' -H "Content-Type: application/json" -X POST http://52.152.201.28/v1/order
+
+curl -kL https://aksfrontend.eastus.cloudapp.azure.com
+
+az aks get-credentials --resource-group aks-workshop-rg --name aks-workshop-cluster
+
+az aks nodepool update --cluster-name aks-workshop-cluster --resource-group aks-workshop-rg --enable-cluster-autoscaler --min-count 1 --max-count 50 --name akswkpool
+
+helm install prometheus stable/prometheus
+helm install grafana stable/grafana
