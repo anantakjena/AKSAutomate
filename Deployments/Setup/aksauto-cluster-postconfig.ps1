@@ -1,60 +1,97 @@
-param([Parameter(Mandatory=$false)] [string] $resourceGroup = "aks-workshop-rg",
-        [Parameter(Mandatory=$false)] [string] $clusterName = "aks-workshop-cluster",        
-        [Parameter(Mandatory=$false)] [string] $acrName = "akswkshpacr",
-        [Parameter(Mandatory=$false)] [string] $applicationGatewayName = "aks-workshop-appgw",
-        [Parameter(Mandatory=$false)] [string] $aksVNetName = "aks-workshop-vnet",
-        [Parameter(Mandatory=$false)] [string] $keyVaultName = "aks-workshop-kv",
-        [Parameter(Mandatory=$false)] [string] $certPwdName = "aks-appgw-password",
-        [Parameter(Mandatory=$false)] [string] $appgwSubnetName = "appgw-workshop-subnet",        
-        [Parameter(Mandatory=$false)] [string] $helmReleaseName = "internal-nginx",
-        [Parameter(Mandatory=$false)] [string] $ingressNSName = "internal-nginx-ns",        
-        [Parameter(Mandatory=$false)] [string] $baseFolderPath = "/Users/monojitdattams/Development/Projects/Workshops/AKSAutomate/Deployments")
+param([Parameter(Mandatory=$false)] [string] $resourceGroup,
+        [Parameter(Mandatory=$false)] [string] $clusterName,
+        [Parameter(Mandatory=$false)] [string] $acrName,        
+        [Parameter(Mandatory=$false)] [string] $keyVaultName,
+        [Parameter(Mandatory=$false)] [string] $appgwName,
+        [Parameter(Mandatory=$false)] [string] $apimName,
+        [Parameter(Mandatory=$false)] [string] $aksVNetName,
+        [Parameter(Mandatory=$false)] [string] $appgwSubnetName, 
+        [Parameter(Mandatory=$false)] [string] $dockerSecretName,
+        [Parameter(Mandatory=$false)] [string] $ingControllerName,
+        [Parameter(Mandatory=$false)] [string] $ingControllerNSName,
+        [Parameter(Mandatory=$false)] [string] $ingControllerFileName,
+        [Parameter(Mandatory=$false)] [string] $ingControllerIPAddress,
+        [Parameter(Mandatory=$false)] [string] $appgwTemplateFileName,
+        [Parameter(Mandatory=$false)] [string] $baseFolderPath)
 
+$acrSPIdName = $acrName + "-sp-id"
+$acrSPSecretName = $acrName + "-sp-secret"
 $templatesFolderPath = $baseFolderPath + "/Templates"
 $yamlFilePath = "$baseFolderPath/YAMLs"
 
-$networkNames = "-applicationGatewayName $applicationGatewayName -vnetName $aksVNetName -subnetName $appgwSubnetName"
-$appgwDeployCommand = "/AppGW/aksauto-appgw-deploy.ps1 -rg $resourceGroup -fpath $templatesFolderPath $networkNames"
+$acrInfo = Get-AzContainerRegistry -ResourceGroupName $resourceGroup -Name $acrName
+if (!$acrInfo)
+{
 
-$kbctlContextCommand = "az aks get-credentials --resource-group $resourceGroup --name $clusterName --admin"
+    Write-Host "Error creating Service Principal"
+    return;
 
-$nginxNSCommand = "kubectl create namespace $ingressNSName"
-$nginxILBCommand = "helm install $helmReleaseName stable/nginx-ingress --namespace $ingressNSName -f $yamlFilePath/internal-ingress.yaml --set controller.replicaCount=2 --set nodeSelector.""beta.kubernetes.io/os""=linux"
+}
 
-$acrDetails = Get-AzContainerRegistry -ResourceGroupName $resourceGroup -Name $acrName
-$acrCredentials = Get-AzContainerRegistryCredential -ResourceGroupName $resourceGroup `
-                    -Name $acrName
+Write-Host $acrInfo.Id
 
-$dockerSecretName = "aksworkshop-secret"
-$dockerServer = $acrDetails.LoginServer
-$dockerUserName = $acrCredentials.Username
-$dockerPassword = $acrCredentials.Password
-                    
-$dockerSecretCommand = "kubectl create secret docker-registry $dockerSecretName --docker-server=$dockerServer --docker-username=$dockerUserName --docker-password=$dockerPassword"
-$dockerLoginCommand = "docker login $dockerServer --username $dockerUserName --password $dockerPassword"
+$acrUserName = Get-AzKeyVaultSecret -VaultName $keyVaultName `
+-Name $acrSPIdName
+if (!$acrUserName)
+{
 
-$securePassword = Read-Host "SSL Cert Password " -AsSecureString
-Set-AzKeyVaultSecret -VaultName $keyVaultName -Name $certPwdName -SecretValue $securePassword
+    Write-Host "Error fetching Service Principal Id"
+    return;
+
+}
+
+$acrPassword = Get-AzKeyVaultSecret -VaultName $keyVaultName `
+-Name $acrSPSecretName
+if (!$acrPassword)
+{
+
+    Write-Host "Error fetching Service Principal Password"
+    return;
+
+}
+
+$dockerServer = $acrInfo.LoginServer
+$dockerUserName = $acrUserName.SecretValueText
+$dockerPassword = $acrPassword.SecretValueText
 
 # Switch Cluster context
+$kbctlContextCommand = "az aks get-credentials --resource-group $resourceGroup --name $clusterName --overwrite-existing --admin"
 Invoke-Expression -Command $kbctlContextCommand
 
 # Create ACR secret
+$dockerSecretCommand = "kubectl create secret docker-registry $dockerSecretName --docker-server=$dockerServer --docker-username=$dockerUserName --docker-password=$dockerPassword"
 Invoke-Expression -Command $dockerSecretCommand
 
+# Docker Login command
+$dockerLoginCommand = "sudo docker login $dockerServer --username $dockerUserName --password $dockerPassword"
+Invoke-Expression -Command $dockerLoginCommand
+
+# Configure ILB file
+$ipReplaceCommand = "sed -e 's|<ILB_IP>|$ingControllerIPAddress|' $yamlFilePath/Common/$ingControllerFileName.yaml > $yamlFilePath/Common/tmp.$ingControllerFileName.yaml"
+Invoke-Expression -Command $ipReplaceCommand
+# Remove temp ILB file
+$removeTempFileCommand = "mv $yamlFilePath/Common/tmp.$ingControllerFileName.yaml $yamlFilePath/Common/$ingControllerFileName.yaml"
+Invoke-Expression -Command $removeTempFileCommand
+
 # Create namespace for nginx
+$nginxNSCommand = "kubectl create namespace $ingControllerNSName"
 Invoke-Expression -Command $nginxNSCommand
 
 # Install nginx as ILB using Helm
+$nginxILBCommand = "helm install $ingControllerName nginx-stable/nginx-ingress --namespace $ingControllerNSName -f $yamlFilePath/Common/$ingControllerFileName.yaml --set controller.replicaCount=2 --set nodeSelector.""beta.kubernetes.io/os""=linux"
 Invoke-Expression -Command $nginxILBCommand
 
-# Docker Login command
-Invoke-Expression -Command $dockerLoginCommand
-
 # Install AppGW
+$apimPrivateIPAddress = ""
+$apim = Get-AzApiManagement -ResourceGroupName $resourceGroup -Name $apimName
+if ($apim)
+{
+    $apimPrivateIPAddress = $apim.PrivateIPAddresses[0]
+}
+
+$networkNames = "-appgwName $appgwName -vnetName $aksVNetName -subnetName $appgwSubnetName"
+$appgwDeployCommand = "/AppGW/$appgwTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $appgwTemplateFileName -backendIPAddress $apimPrivateIPAddress $networkNames"
 $appgwDeployPath = $templatesFolderPath + $appgwDeployCommand
 Invoke-Expression -Command $appgwDeployPath
 
-Write-Host "Post config done"
-
-
+Write-Host "Post-Config Successfully Done!"

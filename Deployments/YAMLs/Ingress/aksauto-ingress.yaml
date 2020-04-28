@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: frontend-ingress
+  name: aksauto-ingress
   annotations:    
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/rewrite-target: /$1 
@@ -18,4 +18,4 @@ spec:
       - path: /?(.*)
         backend:
           serviceName: frontend
-          servicePort: 8080        
+          servicePort: 8080

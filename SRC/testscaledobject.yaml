@@ -1,0 +1,17 @@
+apiVersion: keda.k8s.io/v1alpha1
+kind: ScaledObject
+metadata:
+  name: testkedaqueue
+  namespace: default
+  labels:
+    deploymentName: testkedaqueue
+spec:
+  scaleTargetRef:
+    deploymentName: testkedaqueue
+  triggers:
+  - type: azure-queue
+    metadata:
+      type: queueTrigger
+      connection: AzureWebJobsStorage
+      queueName: kedaqueue
+      name: myQueueItem

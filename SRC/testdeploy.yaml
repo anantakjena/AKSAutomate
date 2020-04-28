@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testkedaqueue
+  namespace: default
+  labels:
+    app: testkedaqueue
+spec:
+  selector:
+    matchLabels:
+      app: testkedaqueue
+  template:
+    metadata:
+      labels:
+        app: testkedaqueue
+    spec:
+      containers:
+      - name: testkedaqueue
+        image: appsvcreg.azurecr.io/kedaqueue:v1.0.7
+        env:
+        - name: AzureFunctionsJobHost__functions__0
+          value: TestKedaQueue        
+        resources:
+          requests:
+            cpu: "0.5"
+            memory: 500Mi
+          limits:
+            cpu: "1.0"
+            memory: 1Gi   
+      imagePullSecrets:
+      - name: appsvc-secret
+      tolerations:
+      - operator: Exists

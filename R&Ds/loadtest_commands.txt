@@ -7,13 +7,48 @@ helm install orders-mongo stable/mongodb --set mongodbUsername=orders-user,mongo
 
 k create secret generic aksworkshop-mongo-secret --from-literal=mongohost=orders-mongo-mongodb.default.svc.cluster.local --from-literal=mongouser=orders-user --from-literal=mongopassword=orders-password
 
-curl -d '{"EmailAddress": "email@domain.com", "Product": "prod-1", "Total": 100}' -H "Content-Type: application/json" -X POST http://52.152.201.28/v1/order
+curl  http://52.151.227.64/v1/order
+curl -d '{"EmailAddress": "email@domain.com", "Product": "prod-1", "Total": 100}' -H "Content-Type: application/json" -X POST http://52.151.227.64/v1/order
 
 curl -kL https://aksfrontend.eastus.cloudapp.azure.com
 
-az aks get-credentials --resource-group aks-workshop-rg --name aks-workshop-cluster
+az aks get-credentials --resource-group aks-workshop-rg --name aks-workshop-cluster --admin
 
 az aks nodepool update --cluster-name aks-workshop-cluster --resource-group aks-workshop-rg --enable-cluster-autoscaler --min-count 1 --max-count 50 --name akswkpool
 
 helm install prometheus stable/prometheus
 helm install grafana stable/grafana
+
+// ububtu agent
+ ssh devops-vm-ub1804@13.82.57.99
+
+// Ubuntu Self hoste agent config
+https://vstsagentpackage.azureedge.net/agent/2.166.3/vsts-agent-linux-x64-2.166.3.tar.gz
+curl https://vstsagentpackage.azureedge.net/agent/2.166.3/vsts-agent-linux-x64-2.166.3.tar.gz --output vsts-agent-linux-x64-2.166.3.tar.gz
+tar -xvf vsts-agent-linux-x64-2.166.3.tar.gz -C ../devops-agent/
+
+// PAT
+5jilv4sb5gl4ht3exkb3xsc4v7wmmzdynbjc7vvlg66uj6on5fha
+
+https://dev.azure.com/modatta
+
+// docker 
+sudo snap install docker
+
+// azure-cli
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+sudo apt-get install -y powershell
+Install-Module -Name Az -AllowClobber
+
+// kubectl
+sudo apt-get update && sudo apt-get install -y apt-transport-https gnupg2
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+sudo apt-get install -y kubectl
+
+// helm
+sudo snap install helm
+
+
+ 

@@ -3,15 +3,16 @@
    "contentVersion":"1.0.0.0",
    "parameters":{
       "applicationGatewayName":{
-         "type":"string"         
+         "type":"string",
+         "defaultValue": ""
       },
       "vnetName":{
          "type":"string",
-         "defaultValue":"[parameters('vnetName')]"
+         "defaultValue":""
       },   
       "subnetName":{
          "type":"string",
-         "defaultValue":"[parameters('subnetName')]"
+         "defaultValue":""
       },
       "skuName": {
         "type": "string",
@@ -24,7 +25,7 @@
            "WAF_Medium",
            "WAF_v2"
         ],
-        "defaultValue": "Standard_v2"
+        "defaultValue": "WAF_v2"
       },      
       "minCapacity":{
          "type":"int",
@@ -40,7 +41,7 @@
       },
       "backendIpAddress1": {
         "type": "string",
-         "defaultValue":"173.0.0.157"
+         "defaultValue":""
       },
       "cookieBasedAffinity":{
          "type":"string",
@@ -53,23 +54,34 @@
       "location":{
          "type":"string",
          "defaultValue":"[resourceGroup().location]"
+      },          
+      "certData":{
+         "type": "securestring",
+         "defaultValue":""
       },
-      "certData": {
-          "type": "securestring"
-    },
-    "certPassword": {
-        "type": "securestring"
-    }
+      "certPassword": {
+         "type": "securestring",
+         "defaultValue":""
+      }
    },
    "variables":{      
-      "applicationGatewayID": "[resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName'))]",      
-      "subnetRef":"[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]",
+      "applicationGatewayID": "[resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName'))]",
+      "appGwIPConfigName":"[concat(parameters('applicationGatewayName'), '-ipc')]",
+      "appGwFrontendIPConfigName":"[concat(parameters('applicationGatewayName'), '-fre-ipc')]",
+      // "appGwFrontendPrivateIPConfigName":"[concat(parameters('applicationGatewayName'), '-fre-prvipc')]",
+      "appGwFrontendPortName":"[concat(parameters('applicationGatewayName'), '-fre-port')]",
+      "appGwBackendPoolName":"[concat(parameters('applicationGatewayName'), '-bkend-pool')]",
+      "appGwBackendHttpSettings":"[concat(parameters('applicationGatewayName'), '-bkend-http-settings')]",
+      "appGwHttpListener":"[concat(parameters('applicationGatewayName'), '-bkend-http-listener')]",
       "appGwPublicIpName":"[concat(parameters('applicationGatewayName'), '-pip')]",
-      "appGwPublicIPRef":"[resourceId('Microsoft.Network/publicIPAddresses', variables('appGwPublicIpName'))]",
+      "appGwSSLCertName":"[concat(parameters('applicationGatewayName'), '-ssl-cert')]",
+      "appGwRuleName":"[concat(parameters('applicationGatewayName'), '-rule')]",
+      "subnetRef":"[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]",      
+      "appGwPublicIPRef":"[resourceId('Microsoft.Network/publicIPAddresses', variables('appGwPublicIpName'))]",      
       "appGwSize":"[parameters('skuName')]",
       "appGwTier":"[parameters('skuName')]"      
    },
-   "resources":[      
+   "resources":[
       {
          "apiVersion":"2018-08-01",
          "type":"Microsoft.Network/publicIPAddresses",
@@ -99,16 +111,16 @@
                "minCapacity":"[parameters('minCapacity')]"
             },
             "sslCertificates": [{
-                "name": "appGatewaySslCert",
-                "properties": {
-                    "data": "[parameters('certData')]",
-                    "password": "[parameters('certPassword')]"
-                    }
-                }
+               "name": "[variables('appGwSSLCertName')]",
+               "properties": {
+                  "data": "[parameters('certData')]",
+                  "password": "[parameters('certPassword')]"
+                  }
+               }
             ],
             "gatewayIPConfigurations":[
                {
-                  "name":"appGatewayIpConfig",
+                  "name":"[variables('appGwIPConfigName')]",
                   "properties":{
                      "subnet":{
                         "id":"[variables('subnetRef')]"
@@ -118,35 +130,35 @@
             ],
             "frontendIPConfigurations":[
                {
-                  "name":"appGatewayFrontendIP",
+                  "name":"[variables('appGwFrontendIPConfigName')]",
                   "properties":{
                      "PublicIPAddress":{
-                        "id":"[variables('appGwPublicIpRef')]"
-                     }
+                        "id":"[variables('appGwPublicIpRef')]"                        
+                     }                     
                   }
-               }
+               }               
             ],
             "frontendPorts":[
                {
-                  "name":"appGatewayFrontendPort",
+                  "name":"[variables('appGwFrontendPortName')]",
                   "properties":{
                      "Port":"[parameters('frontendPort')]"
                   }
                }
             ],
             "backendAddressPools":[
-                {
-                    "name":"appGatewayBackendPool",
-                    "properties":{
+               {
+                  "name":"[variables('appGwBackendPoolName')]",
+                  "properties":{
                         "BackendAddresses":[{
-                            "IpAddress": "[parameters('backendIpAddress1')]"
+                           "IpAddress": "[parameters('backendIpAddress1')]"
                         }]
-                    }
-                }
+                  }
+               }
             ],
             "backendHttpSettingsCollection":[
                {
-                  "name":"appGatewayBackendHttpSettings",
+                  "name":"[variables('appGwBackendHttpSettings')]",
                   "properties":{
                      "Port":"[parameters('backendPort')]",
                      "Protocol":"Http",
@@ -156,17 +168,17 @@
             ],
             "httpListeners":[
                {
-                  "name":"appGatewayHttpListener",
+                  "name":"[variables('appGwHttpListener')]",
                   "properties":{
                      "FrontendIpConfiguration":{
-                        "Id":"[concat(variables('applicationGatewayID'), '/frontendIPConfigurations/appGatewayFrontendIP')]"
+                        "Id":"[concat(variables('applicationGatewayID'), '/frontendIPConfigurations/', variables('appGwFrontendIPConfigName'))]"
                      },
                      "FrontendPort":{
-                        "Id":"[concat(variables('applicationGatewayID'), '/frontendPorts/appGatewayFrontendPort')]"
+                        "Id":"[concat(variables('applicationGatewayID'), '/frontendPorts/', variables('appGwFrontendPortName'))]"
                      },
                      "Protocol":"Https",
                      "SslCertificate": {
-                        "Id": "[concat(variables('applicationGatewayID'), '/sslCertificates/appGatewaySslCert')]"
+                        "Id": "[concat(variables('applicationGatewayID'), '/sslCertificates/', variables('appGwSSLCertName'))]"
                      }
 
                   }
@@ -174,22 +186,22 @@
             ],
             "requestRoutingRules":[
                {
-                   "Name":"rule1",
-                   "properties": {
-                       "RuleType": "Basic",
-                       "httpListener": {
-                           "id": "[resourceId('Microsoft.Network/applicationGateways/httpListeners', parameters('applicationGatewayName'), 'appGatewayHttpListener')]"
+                  "Name":"[variables('appGwRuleName')]",
+                  "properties": {
+                     "RuleType": "Basic",
+                     "httpListener": {
+                           "id": "[resourceId('Microsoft.Network/applicationGateways/httpListeners', parameters('applicationGatewayName'), variables('appGwHttpListener'))]"
                         },
                         "backendAddressPool": {
-                            "id": "[resourceId('Microsoft.Network/applicationGateways/backendAddressPools', parameters('applicationGatewayName'), 'appGatewayBackendPool')]"
+                           "id": "[resourceId('Microsoft.Network/applicationGateways/backendAddressPools', parameters('applicationGatewayName'), variables('appGwBackendPoolName'))]"
                         },
                         "backendHttpSettings": {
-                            "id": "[resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', parameters('applicationGatewayName'), 'appGatewayBackendHttpSettings')]"
+                           "id": "[resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', parameters('applicationGatewayName'), variables('appGwBackendHttpSettings'))]"
                         }
-                    }
+                  }
                }
             ]
          }
-      }
+      }       
    ]
 }

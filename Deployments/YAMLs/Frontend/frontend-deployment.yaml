@@ -33,7 +33,7 @@ spec:
               cpu: "500m"
           env:
           - name: CAPTUREORDERSERVICEIP
-            value: "20.185.74.203"
+            value: "52.151.227.64"
           ports:
           - containerPort: 8080
         imagePullSecrets:

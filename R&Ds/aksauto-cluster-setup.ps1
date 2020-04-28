@@ -2,17 +2,17 @@ param([Parameter(Mandatory=$true)] [string] $mode,
         [Parameter(Mandatory=$false)] [string] $resourceGroup = "aks-workshop-rg",
         [Parameter(Mandatory=$false)] [string] $location = "eastus",
         [Parameter(Mandatory=$false)] [string] $clusterName = "aks-workshop-cluster",
-        [Parameter(Mandatory=$false)] [string] $spIdName = "aks-workshop-sp-id",
-        [Parameter(Mandatory=$false)] [string] $spSecretName = "aks-workshop-sp-secret",
-        [Parameter(Mandatory=$false)] [string] $acrName = "akswkshpacr",
+        [Parameter(Mandatory=$false)] [string] $networkSPIdName = "network-sp-id",
+        [Parameter(Mandatory=$false)] [string] $networkSPSecretName = "network-sp-secret",        
         [Parameter(Mandatory=$false)] [string] $keyVaultName = "aks-workshop-kv",
         [Parameter(Mandatory=$false)] [string] $aksVNetName = "aks-workshop-vnet",
         [Parameter(Mandatory=$false)] [string] $aksSubnetName = "aks-workshop-subnet",
+        [Parameter(Mandatory=$false)] [string] $vrnSubnetName = "vrn-workshop-subnet",
         [Parameter(Mandatory=$false)] [string] $version = "1.14.8",
         [Parameter(Mandatory=$false)] [string] $addons = "monitoring",
-        [Parameter(Mandatory=$false)] [string] $nodeCount = 3,
-        [Parameter(Mandatory=$false)] [string] $minNodeCount = 1,
-        [Parameter(Mandatory=$false)] [string] $maxNodeCount = 60,
+        [Parameter(Mandatory=$false)] [string] $nodeCount = 2,
+        [Parameter(Mandatory=$false)] [string] $minNodeCount = $nodeCount,
+        [Parameter(Mandatory=$false)] [string] $maxNodeCount = 100,
         [Parameter(Mandatory=$false)] [string] $maxPods = 50,
         [Parameter(Mandatory=$false)] [string] $vmSetType = "VirtualMachineScaleSets",
         [Parameter(Mandatory=$false)] [string] $nodeVMSize = "Standard_DS2_v2",
@@ -34,7 +34,7 @@ if (!$keyVault)
 
 }
 
-$spAppId = Get-AzKeyVaultSecret -VaultName $keyVaultName -Name $spIdName
+$spAppId = Get-AzKeyVaultSecret -VaultName $keyVaultName -Name $networkSPIdName
 if (!$spAppId)
 {
 
@@ -43,7 +43,7 @@ if (!$spAppId)
 
 }
 
-$spPassword = Get-AzKeyVaultSecret -VaultName $keyVaultName -Name $spSecretName
+$spPassword = Get-AzKeyVaultSecret -VaultName $keyVaultName -Name $networkSPSecretName
 if (!$spPassword)
 {
 
@@ -93,14 +93,12 @@ if ($mode -eq "create")
 elseif ($mode -eq "update")
 {
 
-    az aks update --name $clusterName --resource-group $resourceGroup `
-    --attach-acr $acrName
-
-
     # az aks nodepool update --cluster-name $clusterName --resource-group $resourceGroup `
     # --enable-cluster-autoscaler --min-count $minNodeCount --max-count $maxNodeCount `
     # --name $nodePoolName
 
+    az aks enable-addons --name $clusterName --resource-group $resourceGroup `
+    --addons virtual-node --subnet-name $vrnSubnetName
 
     # az aks update-credentials --name $clusterName --resource-group $resourceGroup `
     # --reset-aad `

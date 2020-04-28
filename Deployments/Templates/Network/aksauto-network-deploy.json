@@ -7,24 +7,25 @@
         "defaultValue": "aks-vnet"
       },
       "vnetAddressPrefix": {
-        "type": "string",
-        "defaultValue": "173.0.0.0/16"
+        "type": "string"
+      },      
+      "aksSubnetName": {
+        "type": "string"
       },
       "aksSubnetPrefix": {
-        "type": "string",
-        "defaultValue": "173.0.0.0/22"        
-      },
-      "aksSubnetName": {
-        "type": "string",
-        "defaultValue": "aks-subnet"
+        "type": "string"
+      },            
+      "appgwSubnetName": {
+        "type": "string"
       },
       "appgwSubnetPrefix": {
-        "type": "string",
-        "defaultValue": "173.0.4.0/27"
+        "type": "string"
       },
-      "appgwSubnetName": {
-        "type": "string",
-        "defaultValue": "appgw-subnet"
+      "vrnSubnetName": {
+        "type": "string"
+      },
+      "vrnSubnetPrefix": {
+        "type": "string"
       },
       "location": {
         "type": "string",
@@ -64,11 +65,22 @@
             "location": "[parameters('location')]",
             "name": "[parameters('appgwSubnetName')]",
             "dependsOn": [
-              "[parameters('aksVNetName')]",
-              "[parameters('aksSubnetName')]"
+              "[parameters('aksVNetName')]"                            
             ],
             "properties": {
               "addressPrefix": "[parameters('appgwSubnetPrefix')]"
+            }
+          },
+          {
+            "apiVersion": "2018-10-01",
+            "type": "subnets",
+            "location": "[parameters('location')]",
+            "name": "[parameters('vrnSubnetName')]",
+            "dependsOn": [
+              "[parameters('aksVNetName')]"              
+            ],
+            "properties": {
+              "addressPrefix": "[parameters('vrnSubnetPrefix')]"
             }
           }
         ]

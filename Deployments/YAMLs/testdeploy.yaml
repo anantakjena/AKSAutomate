@@ -1,0 +1,56 @@
+data:
+  AzureWebJobsStorage: RGVmYXVsdEVuZHBvaW50c1Byb3RvY29sPWh0dHBzO0FjY291bnROYW1lPWFwcHN3a3NocHN0b3JhZ2U7QWNjb3VudEtleT1WWVhYK3c3OTdidm11cThLR3I4YnY3TkdBendqaVlKYUhyMlh1UHA5cWVEYzZqbE5zdkdYL1ZMSVFzVm9pRi9pUy9YajB3Z21KY25mdW11YUlORUdJZz09O0Jsb2JFbmRwb2ludD1odHRwczovL2FwcHN3a3NocHN0b3JhZ2UuYmxvYi5jb3JlLndpbmRvd3MubmV0LztRdWV1ZUVuZHBvaW50PWh0dHBzOi8vYXBwc3drc2hwc3RvcmFnZS5xdWV1ZS5jb3JlLndpbmRvd3MubmV0LztUYWJsZUVuZHBvaW50PWh0dHBzOi8vYXBwc3drc2hwc3RvcmFnZS50YWJsZS5jb3JlLndpbmRvd3MubmV0LztGaWxlRW5kcG9pbnQ9aHR0cHM6Ly9hcHBzd2tzaHBzdG9yYWdlLmZpbGUuY29yZS53aW5kb3dzLm5ldC87
+  FUNCTIONS_WORKER_RUNTIME: ZG90bmV0
+apiVersion: v1
+kind: Secret
+metadata:
+  name: testkedaqueue
+  namespace: default
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testkedaqueue
+  namespace: default
+  labels:
+    app: testkedaqueue
+spec:
+  selector:
+    matchLabels:
+      app: testkedaqueue
+  template:
+    metadata:
+      labels:
+        app: testkedaqueue
+    spec:
+      containers:
+      - name: testkedaqueue
+        image: appsvcreg.azurecr.io/kedaqueue:v1.0.0
+        env:
+        - name: AzureFunctionsJobHost__functions__0
+          value: TestKedaQueue
+        envFrom:
+        - secretRef:
+            name: testkedaqueue
+      imagePullSecrets:
+      - name: appsvc-secret
+---
+apiVersion: keda.k8s.io/v1alpha1
+kind: ScaledObject
+metadata:
+  name: testkedaqueue
+  namespace: default
+  labels:
+    deploymentName: testkedaqueue
+spec:
+  scaleTargetRef:
+    deploymentName: testkedaqueue
+  triggers:
+  - type: azure-queue
+    metadata:
+      type: queueTrigger
+      connection: AzureWebJobsStorage
+      queueName: kedaqueue
+      name: myQueueItem
+---
+
