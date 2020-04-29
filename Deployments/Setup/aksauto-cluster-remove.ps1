@@ -3,8 +3,7 @@ param([Parameter(Mandatory=$false)] [string] $resourceGroup,
         [Parameter(Mandatory=$false)] [string] $acrName,
         [Parameter(Mandatory=$false)] [string] $keyVaultName,
         [Parameter(Mandatory=$false)] [string] $aksVNetName,
-        [Parameter(Mandatory=$false)] [string] $appgwName,
-        [Parameter(Mandatory=$false)] [string] $apimName,
+        [Parameter(Mandatory=$false)] [string] $appgwName,        
         [Parameter(Mandatory=$false)] [string] $subscriptionId)
 
 $aksSPIdName = $clusterName + "-sp-id"
@@ -24,9 +23,6 @@ Remove-AzApplicationGateway -Name $appgwName `
 
 Remove-AzPublicIpAddress -Name $publicIpAddressName `
 -ResourceGroupName $resourceGroup -Force
-
-Remove-AzApiManagement -Name $apimName `
--ResourceGroupName $resourceGroup
 
 Remove-AzVirtualNetwork -Name $aksVNetName `
 -ResourceGroupName $resourceGroup -Force
