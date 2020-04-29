@@ -82,15 +82,8 @@ $nginxILBCommand = "helm install $ingControllerName nginx-stable/nginx-ingress -
 Invoke-Expression -Command $nginxILBCommand
 
 # Install AppGW
-$apimPrivateIPAddress = ""
-$apim = Get-AzApiManagement -ResourceGroupName $resourceGroup -Name $apimName
-if ($apim)
-{
-    $apimPrivateIPAddress = $apim.PrivateIPAddresses[0]
-}
-
 $networkNames = "-appgwName $appgwName -vnetName $aksVNetName -subnetName $appgwSubnetName"
-$appgwDeployCommand = "/AppGW/$appgwTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $appgwTemplateFileName -backendIPAddress $apimPrivateIPAddress $networkNames"
+$appgwDeployCommand = "/AppGW/$appgwTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $appgwTemplateFileName $networkNames"
 $appgwDeployPath = $templatesFolderPath + $appgwDeployCommand
 Invoke-Expression -Command $appgwDeployPath
 
