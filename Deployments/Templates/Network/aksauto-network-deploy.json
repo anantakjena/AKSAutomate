@@ -6,7 +6,7 @@
         "type": "string",
         "defaultValue": "aks-vnet"
       },
-      "vnetAddressPrefix": {
+      "aksVNetPrefix": {
         "type": "string"
       },      
       "aksSubnetName": {
@@ -42,7 +42,7 @@
         "properties": {
           "addressSpace": {
             "addressPrefixes": [
-              "[parameters('vnetAddressPrefix')]"
+              "[parameters('aksVNetPrefix')]"
             ]
           }
         },
