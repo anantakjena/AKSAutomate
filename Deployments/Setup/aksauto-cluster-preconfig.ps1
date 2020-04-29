@@ -26,7 +26,7 @@ $acrSPIdName = $acrName + "-sp-id"
 $acrSPSecretName = $acrName + "-sp-secret"
 $certSecretName = $appgwName + "-cert-secret"
 $templatesFolderPath = $baseFolderPath + "/Templates"
-$certPFXFilePath = $baseFolderPath + "/Certs/yomoney.pfx"
+$certPFXFilePath = $baseFolderPath + "/Certs/aksauto.pfx"
 
 # Assuming Logged In
 
