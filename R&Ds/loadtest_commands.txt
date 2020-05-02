@@ -7,7 +7,7 @@ docker pull azch/frontend
 docker pull azch/captureorder
 helm install orders-mongo stable/mongodb --set mongodbUsername=orders-user,mongodbPassword=orders-password,mongodbDatabase=akschallenge
 
-k create secret docker-registry aks-workshop-secret --docker-server=akswkshpacr.azurecr.io --docker-username=618f2e55-4ad1-42cd-96de-ce1e285ba2d7 --docker-password=404b971a-467f-4a1a-85f0-bf3264d29c0d -n aks-workshop-dev
+k create secret docker-registry aks-workshop-secret --docker-server=akswkshpacr.azurecr.io --docker-username=e9ab3ce3-ed75-4034-96c6-16a7b2d01e57 --docker-password=c29a9559-064f-4786-ab2c-c98c7eb3007b -n aks-workshop-dev
 k create secret generic aks-workshop-mongo-secret --from-literal=mongohost=orders-mongo-mongodb.default.svc.cluster.local --from-literal=mongouser=orders-user --from-literal=mongopassword=orders-password -n aks-workshop-dev
 
 curl  http://52.186.163.138/v1/order
