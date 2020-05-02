@@ -16,7 +16,7 @@ spec:
         containers:
         - name: frontend
           image: akswkshpacr.azurecr.io/frontend:v1.0.0
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           readinessProbe:
             httpGet:
               port: 8080
