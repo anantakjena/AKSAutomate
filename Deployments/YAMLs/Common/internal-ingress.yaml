@@ -1,5 +1,5 @@
 controller:
   service:
-    loadBalancerIP: 173.0.0.106 #private IP
+    loadBalancerIP: <ILB_IP> #private IP
     annotations:
       service.beta.kubernetes.io/azure-load-balancer-internal: "true"

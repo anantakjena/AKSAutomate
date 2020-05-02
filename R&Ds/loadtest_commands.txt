@@ -3,12 +3,15 @@ az container logs -g aks-workshop-rg -n loadtest
 az container delete -g aks-workshop-rg -n loadtest
 az container show -n loadtest -g aks-workshop-rg
 
+docker pull azch/frontend
+docker pull azch/captureorder
 helm install orders-mongo stable/mongodb --set mongodbUsername=orders-user,mongodbPassword=orders-password,mongodbDatabase=akschallenge
 
-k create secret generic aksworkshop-mongo-secret --from-literal=mongohost=orders-mongo-mongodb.default.svc.cluster.local --from-literal=mongouser=orders-user --from-literal=mongopassword=orders-password
+k create secret docker-registry aks-workshop-secret --docker-server=akswkshpacr.azurecr.io --docker-username=618f2e55-4ad1-42cd-96de-ce1e285ba2d7 --docker-password=404b971a-467f-4a1a-85f0-bf3264d29c0d -n aks-workshop-dev
+k create secret generic aks-workshop-mongo-secret --from-literal=mongohost=orders-mongo-mongodb.default.svc.cluster.local --from-literal=mongouser=orders-user --from-literal=mongopassword=orders-password -n aks-workshop-dev
 
-curl  http://52.151.227.64/v1/order
-curl -d '{"EmailAddress": "email@domain.com", "Product": "prod-1", "Total": 100}' -H "Content-Type: application/json" -X POST http://52.151.227.64/v1/order
+curl  http://52.186.163.138/v1/order
+curl -d '{"EmailAddress": "email@domain.com", "Product": "prod-1", "Total": 100}' -H "Content-Type: application/json" -X POST http://52.186.163.138/v1/order/
 
 curl -kL https://aksfrontend.eastus.cloudapp.azure.com
 
@@ -48,7 +51,80 @@ sudo apt-get update
 sudo apt-get install -y kubectl
 
 // helm
-sudo snap install helm
+sudo snap install helm (brew for mac)
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/
 
+
+// AGIC
+kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml
+helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/
+helm repo update
+wget https://raw.githubusercontent.com/Azure/application-gateway-kubernetes-ingress/master/docs/examples/sample-helm-config.yaml -O helm-config.yaml
+/*this will be part of the repo*/
+
+helm install <install_name>> application-gateway-kubernetes-ingress/ingress-azure `
+     --namespace <namespace> `
+     --debug `
+     --set appgw.name=<appgw-name> `
+     --set appgw.resourceGroup=<resourceGroup> `
+     --set appgw.subscriptionId=<subscriptionId> `
+     --set appgw.usePrivateIP=false `
+     --set appgw.shared=false `
+     --set armAuth.type=servicePrincipal `
+     --set armAuth.secretJSON=$(az ad sp create-for-rbac --sdk-auth | base64) `
+     --set rbac.enabled=true `
+     --set verbosityLevel=3 `
+     --set kubernetes.watchNamespace=default
+
+helm install aks-appgw-ingress -f ./Common/helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure
+
+// Uninstall AGIC
+k delete -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml
+helm delete aks-appgw-ingress -n aks-appgw-ingress-ns 
+
+// NOT uSed finally for AGIC - **
+
+$aadPodIdInstallCommand = "kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml"
+$helmRepoAddCommand = "helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/"
+$helmRepoUpdateCommand = "helm repo update"
+$spCreateCommand = "az ad sp create-for-rbac --sdk-auth | base64 > sp.txt"
+$spContentsCommand = "Get-Content sp.txt"
+$appgwIngressRepoName = "application-gateway-kubernetes-ingress/ingress-azure"
+
+
+# Prepare AGIC installer command
+Invoke-Expression -Command $aadPodIdInstallCommand
+Invoke-Expression -Command $helmRepoAddCommand
+Invoke-Expression -Command $helmRepoUpdateCommand
+
+# Install AGIC command
+Invoke-Expression -Command $spCreateCommand
+$spContent = Invoke-Expression -Command $spContentsCommand
+helm install $ingControllerName $appgwIngressRepoName `
+    --namespace $ingControllerNSName `
+    --set appgw.name=$appgwName `
+    --set appgw.resourceGroup=$resourceGroup `
+    --set appgw.subscriptionId=$subscriptionId `
+    --set appgw.usePrivateIP=false `
+    --set appgw.shared=false `
+    --set armAuth.type=servicePrincipal `
+    --set armAuth.secretJSON=$spContent `
+    --set rbac.enabled=true `
+    --set verbosityLevel=3
+
+// NOT uSed finally for AGIC - **
 
  
+resourceGroup: aks-workshop-rg
+clusterName: aks-workshop-cluster
+acrName: akswkshpacr
+keyVaultName: aks-workshop-kv
+appgwName: aks-workshop-appgw
+aksVNetName: aks-workshop-vnet
+appgwSubnetName: aks-workshop-appgw-subnet
+dockerSecretName: aks-workshop-secret
+ingControllerName: aks-appgw-ingress
+ingControllerNSName: aks-appgw-ingress-ns
+appgwTemplateFileName: aksauto-appgw-deploy
+subscriptionId: 6bdcc705-8db6-4029-953a-e749070e6db6
+baseFolderPath: /Users/monojitdattams/Development/Projects/Workshops/AKSAutomate/Deployments

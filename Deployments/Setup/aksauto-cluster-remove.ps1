@@ -1,9 +1,9 @@
 param([Parameter(Mandatory=$false)] [string] $resourceGroup,
-        [Parameter(Mandatory=$false)] [string] $clusterName, 
+        [Parameter(Mandatory=$false)] [string] $clusterName,
         [Parameter(Mandatory=$false)] [string] $acrName,
         [Parameter(Mandatory=$false)] [string] $keyVaultName,
         [Parameter(Mandatory=$false)] [string] $aksVNetName,
-        [Parameter(Mandatory=$false)] [string] $appgwName,        
+        [Parameter(Mandatory=$false)] [string] $appgwName,
         [Parameter(Mandatory=$false)] [string] $subscriptionId)
 
 $aksSPIdName = $clusterName + "-sp-id"

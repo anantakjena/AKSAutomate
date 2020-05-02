@@ -1,7 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: captureorder  
+  name: captureorder
+  namespace: aks-workshop-dev
 spec:
   selector:
       matchLabels:
@@ -26,7 +27,7 @@ spec:
               path: /healthz
           resources:
             requests:
-              memory: "500Mi" #
+              memory: "500Mi"
               cpu: "500m"
             limits:
               memory: "1Gi"
@@ -36,18 +37,18 @@ spec:
             valueFrom:
                 secretKeyRef:
                   key: mongohost
-                  name: aksworkshop-mongo-secret
+                  name: aks-workshop-mongo-secret
           - name: MONGOUSER
             valueFrom:
                 secretKeyRef:
                   key: mongouser
-                  name: aksworkshop-mongo-secret
+                  name: aks-workshop-mongo-secret
           - name: MONGOPASSWORD
             valueFrom:
                 secretKeyRef:
                   key: mongopassword
-                  name: aksworkshop-mongo-secret          
+                  name: aks-workshop-mongo-secret          
           ports:
           - containerPort: 8080
         imagePullSecrets:
-          - name: aksworkshop-secret
+          - name: aks-workshop-secret
