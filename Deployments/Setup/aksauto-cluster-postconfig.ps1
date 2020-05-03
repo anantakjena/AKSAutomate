@@ -6,8 +6,7 @@ param([Parameter(Mandatory=$false)] [string] $resourceGroup,
         [Parameter(Mandatory=$false)] [string] $aksVNetName,
         [Parameter(Mandatory=$false)] [string] $appgwSubnetName,
         [Parameter(Mandatory=$false)] [string] $appgwTemplateFileName,
-        [Parameter(Mandatory=$false)] [string] $ingControllerIPAddress,
-        [Parameter(Mandatory=$false)] [string] $subscriptionId,
+        [Parameter(Mandatory=$false)] [string] $ingControllerIPAddress,        
         [Parameter(Mandatory=$false)] [string] $baseFolderPath)
 
 $projectName = "aks-workshop"
