@@ -128,3 +128,22 @@ ingControllerNSName: aks-appgw-ingress-ns
 appgwTemplateFileName: aksauto-appgw-deploy
 subscriptionId: 6bdcc705-8db6-4029-953a-e749070e6db6
 baseFolderPath: /Users/monojitdattams/Development/Projects/Workshops/AKSAutomate/Deployments
+
+
+//JFT
+az aks create `
+    --resource-group serverless-workshop-rg `
+    --node-resource-group iot-aks-node-rg `
+    --location eastus `
+    --name iot-aks-cluster `
+    --enable-addons=monitoring `
+    --node-vm-size Standard_D2s_v3 `
+    --node-count 3 `
+    --kubernetes-version 1.15.7 `
+    --generate-ssh-keys `
+    --vm-set-type VirtualMachineScaleSets `
+    --load-balancer-sku standard `
+    --network-plugin azure
+
+
+/subscriptions/6bdcc705-8db6-4029-953a-e749070e6db6/resourceGroups/aks-workshop-rg/providers/Microsoft.Network/virtualNetworks/aks-workshop-vnet/subnets/aks-workshop-subnet

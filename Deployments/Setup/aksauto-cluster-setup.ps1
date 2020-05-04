@@ -99,11 +99,14 @@ elseif ($mode -eq "update")
 
     Write-Host "Updating..."
     
-    az aks nodepool update --cluster-name $clusterName --resource-group $resourceGroup `
-    --enable-cluster-autoscaler --min-count $minNodeCount --max-count $maxNodeCount `
-    --name $nodePoolName
+    # az aks nodepool update --cluster-name $clusterName --resource-group $resourceGroup `
+    # --enable-cluster-autoscaler --min-count $minNodeCount --max-count $maxNodeCount `
+    # --name $nodePoolName
 
-    # az aks enable-addons -a $addons -g $resourceGroup -n $clusterName
+    az aks nodepool add --cluster-name $clusterName --resource-group $resourceGroup `
+    --enable-cluster-autoscaler --min-count $minNodeCount --max-count $maxNodeCount `
+    --name "iotnodepool" --kubernetes-version $version --node-count 5 `
+    --node-vm-size "Standard_D8s_v3"
 
     # az aks update-credentials --name $clusterName --resource-group $resourceGroup `
     # --reset-aad `
