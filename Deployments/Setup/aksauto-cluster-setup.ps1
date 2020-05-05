@@ -17,6 +17,12 @@ param([Parameter(Mandatory=$true)] [string] $mode,
         [Parameter(Mandatory=$false)] [string] $networkPlugin,
         [Parameter(Mandatory=$false)] [string] $networkPolicy,
         [Parameter(Mandatory=$false)] [string] $nodePoolName,
+        [Parameter(Mandatory=$false)] [string] $nodePool2Name,
+        [Parameter(Mandatory=$false)] [string] $nodeVMSizeNodePool2,
+        [Parameter(Mandatory=$false)] [string] $minNodeCountNodePool2,
+        [Parameter(Mandatory=$false)] [string] $maxNodeCountNodePool2,
+        [Parameter(Mandatory=$false)] [string] $maxPodsNodePool2,
+        [Parameter(Mandatory=$false)] [string] $nodeCountNodePool2,
         [Parameter(Mandatory=$false)] [string] $aadServerAppID,
         [Parameter(Mandatory=$false)] [string] $aadServerAppSecret,
         [Parameter(Mandatory=$false)] [string] $aadClientAppID,
@@ -104,21 +110,12 @@ elseif ($mode -eq "update")
     # --name $nodePoolName
 
     az aks nodepool add --cluster-name $clusterName --resource-group $resourceGroup `
-    --enable-cluster-autoscaler --min-count $minNodeCount --max-count $maxNodeCount `
-    --name "iotnodepool" --kubernetes-version $version --node-count 5 `
-    --node-vm-size "Standard_D8s_v3"
+    --name $nodePool2Name --kubernetes-version $version `
+    --node-count $nodeCountNodePool2 --node-vm-size $nodeVMSizeNodePool2
 
-    # az aks update-credentials --name $clusterName --resource-group $resourceGroup `
-    # --reset-aad `
-    # --aad-client-app-id $aadClientAppID `
-    # --aad-server-app-id $aadServerAppID `
-    # --aad-server-app-secret $aadServerAppSecret `
-    # --aad-tenant-id $aadTenantID
-    
-    # f9af19cf-2f73-4010-9b66-4ffcf8d6359c
-    # TPid=@X:2QADBvvDR.u3j3DdAksUaMv5
-    # b003b1d7-3a0f-4101-84bb-3d9d7a24b845
-    # 208c13e1-251b-4077-b5b8-12077e135bcb
+    # az aks nodepool update --cluster-name $clusterName --resource-group $resourceGroup `
+    # --enable-cluster-autoscaler --min-count $minNodeCountNodePool2 `
+    # --max-count $maxNodeCountNodePool2 --name $nodePool2Name
     
 }
 # elseif ($mode -eq "scale")
@@ -128,6 +125,13 @@ elseif ($mode -eq "update")
 #     --node-count $nodeCount --name $nodePoolName
     
 # }
+elseif ($mode -eq "delete")
+{
+
+    az aks nodepool delete --cluster-name $clusterName --resource-group $resourceGroup `
+    --name $nodePool2Name
+    
+}
 
 Write-Host "Cluster Setup Successfully Done!"
 
