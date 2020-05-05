@@ -138,6 +138,12 @@ appgwTemplateFileName: aksauto-appgw-deploy
 subscriptionId: 6bdcc705-8db6-4029-953a-e749070e6db6
 baseFolderPath: /Users/monojitdattams/Development/Projects/Workshops/AKSAutomate/Deployments
 
+// Azure Ad details
+
+# f9af19cf-2f73-4010-9b66-4ffcf8d6359c
+# TPid=@X:2QADBvvDR.u3j3DdAksUaMv5
+# b003b1d7-3a0f-4101-84bb-3d9d7a24b845
+# 208c13e1-251b-4077-b5b8-12077e135bcb
 
 //JFT
 az aks create `
