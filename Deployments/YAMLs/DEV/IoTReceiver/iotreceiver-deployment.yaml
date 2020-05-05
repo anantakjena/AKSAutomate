@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iotreceiver
+  namespace: aks-workshop-dev
+spec:
+  selector:
+      matchLabels:
+        app: iotreceiver
+  replicas: 1
+  template:
+      metadata:
+        labels:
+            app: iotreceiver
+      spec:
+        containers:
+        - name: iotreceiver
+          image: akswkshpacr.azurecr.io/iotreceiver:v1.0.0
+          imagePullPolicy: IfNotPresent          
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "1"
+            limits:
+              memory: "512Mi"
+              cpu: "2"          
+          ports:
+          - containerPort: 80
+        imagePullSecrets:
+          - name: aks-workshop-secret
