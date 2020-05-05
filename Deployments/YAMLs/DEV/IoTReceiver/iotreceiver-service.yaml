@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend
+  name: iotreceiver
   namespace: aks-workshop-dev
 spec:
   selector:
-    app: frontend
+    app: iotreceiver
   ports:
   - protocol: TCP
     port: 80
-    targetPort: 8080
+    targetPort: 80
   type: ClusterIP
