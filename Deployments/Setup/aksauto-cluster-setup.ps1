@@ -110,7 +110,7 @@ elseif ($mode -eq "update")
     # --name $nodePoolName
 
     az aks nodepool add --cluster-name $clusterName --resource-group $resourceGroup `
-    --name $nodePool2Name --kubernetes-version $version `
+    --name $nodePool2Name --kubernetes-version $version --max-pods $maxPodsNodePool2 `
     --node-count $nodeCountNodePool2 --node-vm-size $nodeVMSizeNodePool2
 
     # az aks nodepool update --cluster-name $clusterName --resource-group $resourceGroup `
