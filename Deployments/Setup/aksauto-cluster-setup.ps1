@@ -1,32 +1,57 @@
 param([Parameter(Mandatory=$true)] [string] $mode,
-        [Parameter(Mandatory=$false)] [string] $resourceGroup,
-        [Parameter(Mandatory=$false)] [string] $location,
-        [Parameter(Mandatory=$false)] [string] $clusterName, 
-        [Parameter(Mandatory=$false)] [string] $acrName,
-        [Parameter(Mandatory=$false)] [string] $keyVaultName,
-        [Parameter(Mandatory=$false)] [string] $aksVNetName,
-        [Parameter(Mandatory=$false)] [string] $aksSubnetName,
-        [Parameter(Mandatory=$false)] [string] $version,
-        [Parameter(Mandatory=$false)] [string] $addons,
-        [Parameter(Mandatory=$false)] [string] $nodeCount,
-        [Parameter(Mandatory=$false)] [string] $minNodeCount,
-        [Parameter(Mandatory=$false)] [string] $maxNodeCount,
-        [Parameter(Mandatory=$false)] [string] $maxPods,
-        [Parameter(Mandatory=$false)] [string] $vmSetType,
-        [Parameter(Mandatory=$false)] [string] $nodeVMSize,
-        [Parameter(Mandatory=$false)] [string] $networkPlugin,
-        [Parameter(Mandatory=$false)] [string] $networkPolicy,
-        [Parameter(Mandatory=$false)] [string] $nodePoolName,
-        [Parameter(Mandatory=$false)] [string] $nodePool2Name,
-        [Parameter(Mandatory=$false)] [string] $nodeVMSizeNodePool2,
-        [Parameter(Mandatory=$false)] [string] $minNodeCountNodePool2,
-        [Parameter(Mandatory=$false)] [string] $maxNodeCountNodePool2,
-        [Parameter(Mandatory=$false)] [string] $maxPodsNodePool2,
-        [Parameter(Mandatory=$false)] [string] $nodeCountNodePool2,
-        [Parameter(Mandatory=$false)] [string] $aadServerAppID,
-        [Parameter(Mandatory=$false)] [string] $aadServerAppSecret,
-        [Parameter(Mandatory=$false)] [string] $aadClientAppID,
-        [Parameter(Mandatory=$false)] [string] $aadTenantID)
+        [Parameter(Mandatory=$false)] [string] $resourceGroup = "aks-workshop-rg",
+        [Parameter(Mandatory=$false)] [string] $location = "eastus",
+        [Parameter(Mandatory=$false)] [string] $clusterName = "aks-workshop-cluster",        
+        [Parameter(Mandatory=$false)] [string] $keyVaultName = "aks-workshop-kv",
+        [Parameter(Mandatory=$false)] [string] $aksVNetName = "aks-workshop-vnet",
+        [Parameter(Mandatory=$false)] [string] $aksSubnetName = "aks-workshop-subnet",
+        [Parameter(Mandatory=$false)] [string] $vrnSubnetName = "vrn-workshop-subnet",
+        [Parameter(Mandatory=$false)] [string] $version = "1.15.10",
+        [Parameter(Mandatory=$false)] [string] $addons = "monitoring",
+        [Parameter(Mandatory=$false)] [string] $nodeCount = 5,
+        [Parameter(Mandatory=$false)] [string] $minNodeCount = $nodeCount,
+        [Parameter(Mandatory=$false)] [string] $maxNodeCount = 100,
+        [Parameter(Mandatory=$false)] [string] $maxPods = 50,
+        [Parameter(Mandatory=$false)] [string] $vmSetType = "VirtualMachineScaleSets",
+        [Parameter(Mandatory=$false)] [string] $nodeVMSize = "Standard_D8s_v3",
+        [Parameter(Mandatory=$false)] [string] $networkPlugin = "azure",
+        [Parameter(Mandatory=$false)] [string] $networkPolicy = "azure",
+        [Parameter(Mandatory=$false)] [string] $nodePoolName = "aksiotpool",
+        [Parameter(Mandatory=$false)] [string] $nodeResourceGroup = "aks-workshop-node-rg",
+        [Parameter(Mandatory=$false)] [string] $aadServerAppID = "cd6c670a-b542-4e9d-a957-9f6e941c790e",
+        [Parameter(Mandatory=$false)] [string] $aadServerAppSecret = "M3?8n_sJacW8Rc0mRcUzzQ=Atg-v53om",
+        [Parameter(Mandatory=$false)] [string] $aadClientAppID = "9601340e-735e-4294-84da-44bfe43c85a1",
+        [Parameter(Mandatory=$false)] [string] $aadTenantID = "bbe9b0ad-f1c1-4242-87f9-f22d7621beea")
+
+# param([Parameter(Mandatory=$true)] [string] $mode,
+#         [Parameter(Mandatory=$false)] [string] $resourceGroup,
+#         [Parameter(Mandatory=$false)] [string] $location,
+#         [Parameter(Mandatory=$false)] [string] $clusterName,
+#         [Parameter(Mandatory=$false)] [string] $keyVaultName,
+#         [Parameter(Mandatory=$false)] [string] $aksVNetName,
+#         [Parameter(Mandatory=$false)] [string] $aksSubnetName,
+#         [Parameter(Mandatory=$false)] [string] $vrnSubnetName,
+#         [Parameter(Mandatory=$false)] [string] $version,
+#         [Parameter(Mandatory=$false)] [string] $addons,
+#         [Parameter(Mandatory=$false)] [string] $nodeCount,
+#         [Parameter(Mandatory=$false)] [string] $minNodeCount,
+#         [Parameter(Mandatory=$false)] [string] $maxNodeCount,
+#         [Parameter(Mandatory=$false)] [string] $maxPods,
+#         [Parameter(Mandatory=$false)] [string] $vmSetType,
+#         [Parameter(Mandatory=$false)] [string] $nodeVMSize,
+#         [Parameter(Mandatory=$false)] [string] $networkPlugin,
+#         [Parameter(Mandatory=$false)] [string] $networkPolicy,
+#         [Parameter(Mandatory=$false)] [string] $nodePoolName,
+#         [Parameter(Mandatory=$false)] [string] $nodePool2Name,
+#         [Parameter(Mandatory=$false)] [string] $nodeVMSizeNodePool2,
+#         [Parameter(Mandatory=$false)] [string] $minNodeCountNodePool2,
+#         [Parameter(Mandatory=$false)] [string] $maxNodeCountNodePool2,
+#         [Parameter(Mandatory=$false)] [string] $maxPodsNodePool2,
+#         [Parameter(Mandatory=$false)] [string] $nodeCountNodePool2,
+#         [Parameter(Mandatory=$false)] [string] $aadServerAppID,
+#         [Parameter(Mandatory=$false)] [string] $aadServerAppSecret,
+#         [Parameter(Mandatory=$false)] [string] $aadClientAppID,
+#         [Parameter(Mandatory=$false)] [string] $aadTenantID)
 
 
 $aksSPIdName = $clusterName + "-sp-id"
@@ -105,17 +130,17 @@ elseif ($mode -eq "update")
 
     Write-Host "Updating..."
     
-    # az aks nodepool update --cluster-name $clusterName --resource-group $resourceGroup `
-    # --enable-cluster-autoscaler --min-count $minNodeCount --max-count $maxNodeCount `
-    # --name $nodePoolName
+    az aks nodepool update --cluster-name $clusterName --resource-group $resourceGroup `
+    --enable-cluster-autoscaler --min-count $minNodeCount --max-count $maxNodeCount `
+    --name $nodePoolName
 
     # az aks nodepool add --cluster-name $clusterName --resource-group $resourceGroup `
     # --name $nodePool2Name --kubernetes-version $version --max-pods $maxPodsNodePool2 `
     # --node-count $nodeCountNodePool2 --node-vm-size $nodeVMSizeNodePool2
 
-    az aks nodepool update --cluster-name $clusterName --resource-group $resourceGroup `
-    --enable-cluster-autoscaler --min-count $minNodeCountNodePool2 `
-    --max-count $maxNodeCountNodePool2 --name $nodePool2Name
+    # az aks nodepool update --cluster-name $clusterName --resource-group $resourceGroup `
+    # --enable-cluster-autoscaler --min-count $minNodeCountNodePool2 `
+    # --max-count $maxNodeCountNodePool2 --name $nodePool2Name
     
 }
 # elseif ($mode -eq "scale")

@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTReceiverAPI", "IoTReceiverAPI\IoTReceiverAPI.csproj", "{E4307856-76B0-47CA-BF16-365FD9B5ACC8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTSenderAPI", "IoTReceiverAPI\IoTSenderAPI.csproj", "{E4307856-76B0-47CA-BF16-365FD9B5ACC8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

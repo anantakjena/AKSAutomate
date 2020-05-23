@@ -43,7 +43,7 @@ namespace IoTReceiverAPI.Controllers
 
                 var dc = DeviceClient.CreateFromConnectionString(connString, TransportType.Mqtt);
                 var msg = new Message(Encoding.UTF8.GetBytes(mqttMessageString));
-                await dc.SendEventAsync(msg);
+                await dc.SendEventAsync(msg);                
                 Console.WriteLine("Sent");
 
             });

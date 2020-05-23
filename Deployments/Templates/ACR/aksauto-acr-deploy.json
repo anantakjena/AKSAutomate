@@ -10,7 +10,7 @@
       },
       "acrAdminUserEnabled": {
         "type": "bool",
-        "defaultValue": true
+        "defaultValue": false
       },
       "location": {
         "type": "string",

@@ -16,11 +16,11 @@ spec:
   rules:    
   - http:
       paths:
-      - path: /?(.*)
-        backend:
-          serviceName: frontend
-          servicePort: 80
+      # - path: /?(.*)
+      #   backend:
+      #     serviceName: frontend
+      #     servicePort: 80
       - path: /iot/?(.*)
         backend:
-          serviceName: iotreceiver
+          serviceName: iotmqttsender
           servicePort: 80

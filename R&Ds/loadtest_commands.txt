@@ -122,7 +122,6 @@ helm install $ingControllerName $appgwIngressRepoName `
     --set verbosityLevel=3
 
 // NOT uSed finally for AGIC - **
-
  
 resourceGroup: aks-workshop-rg
 clusterName: aks-workshop-cluster
@@ -161,4 +160,28 @@ az aks create `
     --network-plugin azure
 
 
+// nginx ingress
+
+// public
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+helm install nginx-ingress stable/nginx-ingress \
+    --namespace nginx-ingress-ns \
+    --set controller.replicaCount=2 \
+    --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
+    --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux
+
+// private
+helm install nginx-ingress stable/nginx-ingress \
+    --namespace ingress-basic \
+    -f internal-ingress.yaml \
+    --set controller.replicaCount=2 \
+    --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
+    --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux
+
 /subscriptions/6bdcc705-8db6-4029-953a-e749070e6db6/resourceGroups/aks-workshop-rg/providers/Microsoft.Network/virtualNetworks/aks-workshop-vnet/subnets/aks-workshop-subnet
+
+// check network ports
+netstat -ap tcp | grep -i "listen"
+(sudo) lsof -PiTCP -sTCP:LISTEN
+
+ssh dev@40.76.114.56
