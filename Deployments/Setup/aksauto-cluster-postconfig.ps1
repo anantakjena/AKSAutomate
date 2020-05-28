@@ -1,5 +1,6 @@
 param([Parameter(Mandatory=$false)] [string] $resourceGroup,
-        [Parameter(Mandatory=$false)] [string] $clusterName,
+        [Parameter(Mandatory=$false)] [string] $projectName,
+        [Parameter(Mandatory=$false)] [string] $clusterName,        
         [Parameter(Mandatory=$false)] [string] $acrName,
         [Parameter(Mandatory=$false)] [string] $keyVaultName,
         [Parameter(Mandatory=$false)] [string] $appgwName,
@@ -9,7 +10,6 @@ param([Parameter(Mandatory=$false)] [string] $resourceGroup,
         [Parameter(Mandatory=$false)] [string] $ingControllerIPAddress,        
         [Parameter(Mandatory=$false)] [string] $baseFolderPath)
 
-$projectName = "aks-workshop"
 $acrSPIdName = $acrName + "-sp-id"
 $acrSPSecretName = $acrName + "-sp-secret"
 $templatesFolderPath = $baseFolderPath + "/Templates"
