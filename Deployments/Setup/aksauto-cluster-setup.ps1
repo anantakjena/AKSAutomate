@@ -105,17 +105,17 @@ elseif ($mode -eq "update")
 
     Write-Host "Updating..."
     
-    az aks nodepool update --cluster-name $clusterName --resource-group $resourceGroup `
-    --enable-cluster-autoscaler --min-count $minNodeCount --max-count $maxNodeCount `
-    --name $nodePoolName
-
-    # az aks nodepool add --cluster-name $clusterName --resource-group $resourceGroup `
-    # --name $nodePool2Name --kubernetes-version $version --max-pods $maxPodsNodePool2 `
-    # --node-count $nodeCountNodePool2 --node-vm-size $nodeVMSizeNodePool2
-
     # az aks nodepool update --cluster-name $clusterName --resource-group $resourceGroup `
-    # --enable-cluster-autoscaler --min-count $minNodeCountNodePool2 `
-    # --max-count $maxNodeCountNodePool2 --name $nodePool2Name
+    # --enable-cluster-autoscaler --min-count $minNodeCount --max-count $maxNodeCount `
+    # --name $nodePoolName
+
+    az aks nodepool add --cluster-name $clusterName --resource-group $resourceGroup `
+    --name $nodePool2Name --kubernetes-version $version --max-pods $maxPodsNodePool2 `
+    --node-count $nodeCountNodePool2 --node-vm-size $nodeVMSizeNodePool2
+
+    az aks nodepool update --cluster-name $clusterName --resource-group $resourceGroup `
+    --enable-cluster-autoscaler --min-count $minNodeCountNodePool2 `
+    --max-count $maxNodeCountNodePool2 --name $nodePool2Name
     
 }
 # elseif ($mode -eq "scale")

@@ -22,6 +22,8 @@ az aks nodepool update --cluster-name aks-workshop-cluster --resource-group aks-
 helm install prometheus stable/prometheus
 helm install grafana stable/grafana
 
+
+
 // ububtu agent
  ssh devops-vm-ub1804@13.82.57.99
 
@@ -184,4 +186,5 @@ helm install nginx-ingress stable/nginx-ingress \
 netstat -ap tcp | grep -i "listen"
 (sudo) lsof -PiTCP -sTCP:LISTEN
 
+// CAT team machine
 ssh dev@40.76.114.56

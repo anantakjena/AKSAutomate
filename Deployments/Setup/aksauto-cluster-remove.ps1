@@ -1,10 +1,10 @@
-param([Parameter(Mandatory=$false)] [string] $resourceGroup,
-        [Parameter(Mandatory=$false)] [string] $clusterName,
-        [Parameter(Mandatory=$false)] [string] $acrName,
-        [Parameter(Mandatory=$false)] [string] $keyVaultName,
-        [Parameter(Mandatory=$false)] [string] $aksVNetName,
-        [Parameter(Mandatory=$false)] [string] $appgwName,
-        [Parameter(Mandatory=$false)] [string] $subscriptionId)
+param([Parameter(Mandatory=$true)] [string] $resourceGroup,
+        [Parameter(Mandatory=$true)] [string] $clusterName,
+        [Parameter(Mandatory=$true)] [string] $acrName,
+        [Parameter(Mandatory=$true)] [string] $keyVaultName,
+        [Parameter(Mandatory=$true)] [string] $aksVNetName,
+        [Parameter(Mandatory=$true)] [string] $appgwName,
+        [Parameter(Mandatory=$true)] [string] $subscriptionId)
 
 $aksSPIdName = $clusterName + "-sp-id"
 $publicIpAddressName = "$appgwName-pip"
