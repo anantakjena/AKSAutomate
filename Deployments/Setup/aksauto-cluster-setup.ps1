@@ -96,7 +96,7 @@ if ($mode -eq "create")
     --aad-tenant-id $aadTenantID `
     --query $createSuccessCommand
 
-    if ($result -gt 0)
+    if ($result -le 0)
     {
 
         Write-Host "Error Creating AKS Cluster"
@@ -115,7 +115,7 @@ elseif ($mode -eq "update")
     --min-count $minNodeCount --max-count $maxNodeCount `
     --name $nodePoolName --query $updateSuccessCommand
 
-    if ($result -gt 0)
+    if ($result -le 0)
     {
 
         Write-Host "Error Updating AKS Cluster"
@@ -132,7 +132,7 @@ elseif ($mode -eq "scale")
     --node-count $nodeCount --name $nodePoolName `
     --query $updateSuccessCommand
 
-    if ($result -gt 0)
+    if ($result -le 0)
     {
 
         Write-Host "Error Scaling AKS Cluster"
