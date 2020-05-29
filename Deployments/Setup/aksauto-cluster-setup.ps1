@@ -16,13 +16,7 @@ param([Parameter(Mandatory=$true)] [string] $mode,
         [Parameter(Mandatory=$false)] [string] $nodeVMSize,
         [Parameter(Mandatory=$false)] [string] $networkPlugin,
         [Parameter(Mandatory=$false)] [string] $networkPolicy,
-        [Parameter(Mandatory=$false)] [string] $nodePoolName,
-        [Parameter(Mandatory=$false)] [string] $nodePool2Name,
-        [Parameter(Mandatory=$false)] [string] $nodeVMSizeNodePool2,
-        [Parameter(Mandatory=$false)] [string] $minNodeCountNodePool2,
-        [Parameter(Mandatory=$false)] [string] $maxNodeCountNodePool2,
-        [Parameter(Mandatory=$false)] [string] $maxPodsNodePool2,
-        [Parameter(Mandatory=$false)] [string] $nodeCountNodePool2,
+        [Parameter(Mandatory=$false)] [string] $nodePoolName,        
         [Parameter(Mandatory=$false)] [string] $aadServerAppID,
         [Parameter(Mandatory=$false)] [string] $aadServerAppSecret,
         [Parameter(Mandatory=$false)] [string] $aadClientAppID,
@@ -31,6 +25,8 @@ param([Parameter(Mandatory=$true)] [string] $mode,
 
 $aksSPIdName = $clusterName + "-sp-id"
 $aksSPSecretName = $clusterName + "-sp-secret"
+$createSuccessCommand =  "@length(agentPoolProfiles)"
+$updateSuccessCommand =  "length(@)"
 
 $keyVault = Get-AzKeyVault -ResourceGroupName $resourceGroup -VaultName $keyVaultName
 if (!$keyVault)
@@ -84,7 +80,7 @@ if ($mode -eq "create")
 
     Write-Host "Creating..."
 
-    az aks create --name $clusterName --resource-group $resourceGroup `
+    $result = az aks create --name $clusterName --resource-group $resourceGroup `
     --kubernetes-version $version --location $location `
     --vnet-subnet-id $aksSubnet.Id --enable-addons $addons `
     --node-vm-size $nodeVMSize `
@@ -97,7 +93,16 @@ if ($mode -eq "create")
     --aad-client-app-id $aadClientAppID `
     --aad-server-app-id $aadServerAppID `
     --aad-server-app-secret $aadServerAppSecret `
-    --aad-tenant-id $aadTenantID
+    --aad-tenant-id $aadTenantID `
+    --query $createSuccessCommand
+
+    if ($result -gt 0)
+    {
+
+        Write-Host "Error Creating AKS Cluster"
+        return;
+    
+    }
     
 }
 elseif ($mode -eq "update")
@@ -105,33 +110,46 @@ elseif ($mode -eq "update")
 
     Write-Host "Updating..."
     
-    # az aks nodepool update --cluster-name $clusterName --resource-group $resourceGroup `
-    # --enable-cluster-autoscaler --min-count $minNodeCount --max-count $maxNodeCount `
-    # --name $nodePoolName
+    $result = az aks nodepool update --cluster-name $clusterName `
+    --resource-group $resourceGroup --enable-cluster-autoscaler `
+    --min-count $minNodeCount --max-count $maxNodeCount `
+    --name $nodePoolName --query $updateSuccessCommand
 
-    az aks nodepool add --cluster-name $clusterName --resource-group $resourceGroup `
-    --name $nodePool2Name --kubernetes-version $version --max-pods $maxPodsNodePool2 `
-    --node-count $nodeCountNodePool2 --node-vm-size $nodeVMSizeNodePool2
+    if ($result -gt 0)
+    {
 
-    az aks nodepool update --cluster-name $clusterName --resource-group $resourceGroup `
-    --enable-cluster-autoscaler --min-count $minNodeCountNodePool2 `
-    --max-count $maxNodeCountNodePool2 --name $nodePool2Name
+        Write-Host "Error Updating AKS Cluster"
+        return;
+    
+    }
     
 }
-# elseif ($mode -eq "scale")
-# {
-
-#     az aks nodepool scale --cluster-name $clusterName --resource-group $resourceGroup `
-#     --node-count $nodeCount --name $nodePoolName
-    
-# }
-elseif ($mode -eq "delete")
+elseif ($mode -eq "scale")
 {
 
-    az aks nodepool delete --cluster-name $clusterName --resource-group $resourceGroup `
-    --name $nodePool2Name
+    $result = az aks nodepool scale --cluster-name $clusterName `
+    --resource-group $resourceGroup `
+    --node-count $nodeCount --name $nodePoolName `
+    --query $updateSuccessCommand
+
+    if ($result -gt 0)
+    {
+
+        Write-Host "Error Scaling AKS Cluster"
+        return;
+    
+    }
     
 }
+# elseif ($mode -eq "delete")
+# {
+
+#     Write-Host "Deleting..."
+
+#     az aks nodepool delete --cluster-name $clusterName --resource-group $resourceGroup `
+#     --name $nodePool2Name
+    
+# }
 
 Write-Host "Cluster Setup Successfully Done!"
 
