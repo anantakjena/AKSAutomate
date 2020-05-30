@@ -90,6 +90,8 @@ elseif ($mode -eq "scale")
     --name $nodePoolName `
     --query $updateSuccessCommand
 
+    Write-Host "Result - $result"
+
     if ($result -le 0)
     {
 
