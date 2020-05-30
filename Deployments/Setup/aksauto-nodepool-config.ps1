@@ -36,7 +36,7 @@ if (!$aksSubnet)
 
 }
 
-if ($mode -eq "add")
+if ($mode -eq "create")
 {
 
     Write-Host "Adding Nodepool..." + $nodePoolName
