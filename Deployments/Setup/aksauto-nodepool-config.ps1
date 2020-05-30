@@ -38,8 +38,8 @@ if (!$aksSubnet)
 
 if ($mode -eq "create")
 {
-
-    Write-Host "Adding Nodepool..." + $nodePoolName
+    
+    Write-Host "Adding Nodepool... $nodePoolName"
 
     $result = az aks nodepool add --cluster-name $clusterName `
     --resource-group $resourceGroup `
@@ -50,10 +50,12 @@ if ($mode -eq "create")
     --node-vm-size $nodeVMSize `
     --query $addSuccessCommand
 
+    Write-Host "Result - $result"
+
     if ($result -le 0)
     {
 
-        Write-Host "Error Creating Nodepool - "  + $nodePoolName
+        Write-Host "Error Creating Nodepool - $nodePoolName"
         return;
     
     }
@@ -62,7 +64,7 @@ if ($mode -eq "create")
 elseif ($mode -eq "update")
 {
 
-    Write-Host "Updating Nodepool..." + $nodePoolName
+    Write-Host "Updating Nodepool... $nodePoolName"
     
     az aks nodepool update --cluster-name $clusterName `
     --resource-group $resourceGroup --enable-cluster-autoscaler `
@@ -72,7 +74,7 @@ elseif ($mode -eq "update")
     if ($result -le 0)
     {
 
-        Write-Host "Error Updating Nodepool - " + $nodePoolName
+        Write-Host "Error Updating Nodepool - $nodePoolName"
         return;
     
     }
@@ -81,7 +83,7 @@ elseif ($mode -eq "update")
 elseif ($mode -eq "scale")
 {
 
-    Write-Host "Scaling Nodepool..." + $nodePoolName
+    Write-Host "Scaling Nodepool... $nodePoolName"
 
     az aks nodepool scale --cluster-name $clusterName `
     --resource-group $resourceGroup --node-count $nodeCount `
@@ -91,7 +93,7 @@ elseif ($mode -eq "scale")
     if ($result -le 0)
     {
 
-        Write-Host "Error Scaling Nodepool - " + $nodePoolName
+        Write-Host "Error Scaling Nodepool - $nodePoolName"
         return;
     
     }
@@ -100,7 +102,7 @@ elseif ($mode -eq "scale")
 elseif ($mode -eq "delete")
 {
 
-    Write-Host "Deleting Nodepool..." + $nodePoolName
+    Write-Host "Deleting Nodepool... $nodePoolName"
 
     az aks nodepool delete --cluster-name $clusterName `
     --resource-group $resourceGroup --name $nodePoolName
