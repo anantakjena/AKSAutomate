@@ -25,8 +25,7 @@ param([Parameter(Mandatory=$true)] [string] $mode,
 
 $aksSPIdName = $clusterName + "-sp-id"
 $aksSPSecretName = $clusterName + "-sp-secret"
-$createSuccessCommand =  "@length(agentPoolProfiles)"
-$updateSuccessCommand =  "length(@)"
+$configSuccessCommand =  "length(@)"
 
 $keyVault = Get-AzKeyVault -ResourceGroupName $resourceGroup -VaultName $keyVaultName
 if (!$keyVault)
@@ -94,7 +93,7 @@ if ($mode -eq "create")
     --aad-server-app-id $aadServerAppID `
     --aad-server-app-secret $aadServerAppSecret `
     --aad-tenant-id $aadTenantID `
-    --query $createSuccessCommand
+    --query $configSuccessCommand
 
     Write-Host "Result - $result"
 
@@ -113,9 +112,9 @@ elseif ($mode -eq "update")
     Write-Host "Updating Cluster... $clusterName"
     
     $result = az aks nodepool update --cluster-name $clusterName `
-    --resource-group $resourceGroup --enable-cluster-autoscaler `
+    --resource-group $resourceGroup --update-cluster-autoscaler `
     --min-count $minNodeCount --max-count $maxNodeCount `
-    --name $nodePoolName --query $updateSuccessCommand
+    --name $nodePoolName --query $configSuccessCommand
 
     Write-Host "Result - $result"
 
@@ -136,7 +135,7 @@ elseif ($mode -eq "scale")
     $result = az aks nodepool scale --cluster-name $clusterName `
     --resource-group $resourceGroup `
     --node-count $nodeCount --name $nodePoolName `
-    --query $updateSuccessCommand
+    --query $configSuccessCommand
 
     Write-Host "Result - $result"
 
