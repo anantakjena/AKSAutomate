@@ -70,6 +70,8 @@ elseif ($mode -eq "update")
     --min-count $minNodeCount --max-count $maxNodeCount `
     --name $nodePoolName --query $configSuccessCommand
 
+    Write-Host "Result - $result"
+
     if ($result -le 0)
     {
 
