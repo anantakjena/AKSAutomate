@@ -78,7 +78,7 @@ if (!$aksSubnet)
 if ($mode -eq "create")
 {
 
-    Write-Host "Creating Cluster..." + $clusterName
+    Write-Host "Creating Cluster... $clusterName"
 
     $result = az aks create --name $clusterName --resource-group $resourceGroup `
     --kubernetes-version $version --location $location `
@@ -99,7 +99,7 @@ if ($mode -eq "create")
     if ($result -le 0)
     {
 
-        Write-Host "Error Creating AKS Cluster - " + $clusterName
+        Write-Host "Error Creating AKS Cluster - $clusterName"
         return;
     
     }
@@ -108,7 +108,7 @@ if ($mode -eq "create")
 elseif ($mode -eq "update")
 {
 
-    Write-Host "Updating Cluster..." + $clusterName
+    Write-Host "Updating Cluster... $clusterName"
     
     $result = az aks nodepool update --cluster-name $clusterName `
     --resource-group $resourceGroup --enable-cluster-autoscaler `
@@ -118,7 +118,7 @@ elseif ($mode -eq "update")
     if ($result -le 0)
     {
 
-        Write-Host "Error Updating AKS Cluster - " + $clusterName
+        Write-Host "Error Updating AKS Cluster - $clusterName"
         return;
     
     }
@@ -127,7 +127,7 @@ elseif ($mode -eq "update")
 elseif ($mode -eq "scale")
 {
 
-    Write-Host "Scaling Cluster..." + $clusterName
+    Write-Host "Scaling Cluster... $clusterName"
 
     $result = az aks nodepool scale --cluster-name $clusterName `
     --resource-group $resourceGroup `
@@ -137,7 +137,7 @@ elseif ($mode -eq "scale")
     if ($result -le 0)
     {
 
-        Write-Host "Error Scaling AKS Cluster - " + $clusterName
+        Write-Host "Error Scaling AKS Cluster - $clusterName"
         return;
     
     }
