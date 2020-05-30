@@ -41,24 +41,23 @@ if ($mode -eq "create")
     
     Write-Host "Adding Nodepool... $nodePoolName"
 
-    $result = az aks nodepool add --cluster-name $clusterName `
+    az aks nodepool add --cluster-name $clusterName `
     --resource-group $resourceGroup `
     --name $nodePoolName `
     --kubernetes-version $version `
     --max-pods $maxPods `
     --node-count $nodeCount `
-    --node-vm-size $nodeVMSize `
-    --query $addSuccessCommand
+    --node-vm-size $nodeVMSize
 
-    Write-Host "Result - $result"
+    # Write-Host "Result - $result"
 
-    if ($result -le 0)
-    {
+    # if ($result -le 0)
+    # {
 
-        Write-Host "Error Creating Nodepool - $nodePoolName"
-        return;
+    #     Write-Host "Error Creating Nodepool - $nodePoolName"
+    #     return;
     
-    }
+    # }
 
 }
 elseif ($mode -eq "update")
