@@ -13,8 +13,7 @@ param([Parameter(Mandatory=$true)] [string] $mode,
         [Parameter(Mandatory=$false)] [string] $nodeVMSize,        
         [Parameter(Mandatory=$false)] [string] $nodePoolName)
 
-$addSuccessCommand =  "@length(agentPoolProfiles)"
-$updateSuccessCommand =  "length(@)"
+$configSuccessCommand =  "length(@)"
 
 $aksVnet = Get-AzVirtualNetwork -Name $aksVNetName `
 -ResourceGroupName $resourceGroup
@@ -41,23 +40,24 @@ if ($mode -eq "create")
     
     Write-Host "Adding Nodepool... $nodePoolName"
 
-    az aks nodepool add --cluster-name $clusterName `
+    $result = az aks nodepool add --cluster-name $clusterName `
     --resource-group $resourceGroup `
     --name $nodePoolName `
     --kubernetes-version $version `
     --max-pods $maxPods `
     --node-count $nodeCount `
-    --node-vm-size $nodeVMSize
+    --node-vm-size $nodeVMSize `
+    --query $configSuccessCommand
 
-    # Write-Host "Result - $result"
+    Write-Host "Result - $result"
 
-    # if ($result -le 0)
-    # {
+    if ($result -le 0)
+    {
 
-    #     Write-Host "Error Creating Nodepool - $nodePoolName"
-    #     return;
+        Write-Host "Error Creating Nodepool - $nodePoolName"
+        return;
     
-    # }
+    }
 
 }
 elseif ($mode -eq "update")
@@ -68,7 +68,7 @@ elseif ($mode -eq "update")
     az aks nodepool update --cluster-name $clusterName `
     --resource-group $resourceGroup --enable-cluster-autoscaler `
     --min-count $minNodeCount --max-count $maxNodeCount `
-    --name $nodePoolName --query $updateSuccessCommand
+    --name $nodePoolName --query $configSuccessCommand
 
     if ($result -le 0)
     {
@@ -87,7 +87,7 @@ elseif ($mode -eq "scale")
     az aks nodepool scale --cluster-name $clusterName `
     --resource-group $resourceGroup --node-count $nodeCount `
     --name $nodePoolName `
-    --query $updateSuccessCommand
+    --query $configSuccessCommand
 
     Write-Host "Result - $result"
 
