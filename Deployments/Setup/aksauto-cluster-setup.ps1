@@ -96,6 +96,8 @@ if ($mode -eq "create")
     --aad-tenant-id $aadTenantID `
     --query $createSuccessCommand
 
+    Write-Host "Result - $result"
+
     if ($result -le 0)
     {
 
@@ -115,6 +117,8 @@ elseif ($mode -eq "update")
     --min-count $minNodeCount --max-count $maxNodeCount `
     --name $nodePoolName --query $updateSuccessCommand
 
+    Write-Host "Result - $result"
+
     if ($result -le 0)
     {
 
@@ -133,6 +137,8 @@ elseif ($mode -eq "scale")
     --resource-group $resourceGroup `
     --node-count $nodeCount --name $nodePoolName `
     --query $updateSuccessCommand
+
+    Write-Host "Result - $result"
 
     if ($result -le 0)
     {
