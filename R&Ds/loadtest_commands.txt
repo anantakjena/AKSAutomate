@@ -3,17 +3,21 @@ az container logs -g aks-workshop-rg -n loadtest
 az container delete -g aks-workshop-rg -n loadtest
 az container show -n loadtest -g aks-workshop-rg
 
+
 docker pull azch/frontend
 docker pull azch/captureorder
-helm install orders-mongo stable/mongodb --set mongodbUsername=orders-user,mongodbPassword=orders-password,mongodbDatabase=akschallenge
 
-k create secret docker-registry aks-workshop-secret --docker-server=akswkshpacr.azurecr.io --docker-username=e9ab3ce3-ed75-4034-96c6-16a7b2d01e57 --docker-password=c29a9559-064f-4786-ab2c-c98c7eb3007b -n aks-workshop-dev
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm search repo bitnami
+helm install orders-mongo bitnami/mongodb --set mongodbUsername=orders-user,mongodbPassword=orders-password,mongodbDatabase=akschallenge
+
+k create secret docker-registry aks-workshop-secret --docker-server=akswkshpacr.azurecr.io --docker-username=77858573-aad4-48a2-a616-2b06593ed5f3 --docker-password=a54696af-319f-4885-b682-1386b14dc772 -n aks-workshop-dev
 k create secret generic aks-workshop-mongo-secret --from-literal=mongohost=orders-mongo-mongodb.default.svc.cluster.local --from-literal=mongouser=orders-user --from-literal=mongopassword=orders-password -n aks-workshop-dev
 
-curl  http://52.186.163.138/v1/order
-curl -d '{"EmailAddress": "email@domain.com", "Product": "prod-1", "Total": 100}' -H "Content-Type: application/json" -X POST http://52.186.163.138/v1/order/
+curl  http://52.191.19.106/v1/order
+curl -d '{"EmailAddress": "email@domain.com", "Product": "prod-1", "Total": 100}' -H "Content-Type: application/json" -X POST http://52.191.19.106/v1/order/
 
-curl -kL https://aksfrontend.eastus.cloudapp.azure.com
+curl -kL https://aksfrontend.eastus.cloudapp.azure./fe
 
 az aks get-credentials --resource-group aks-workshop-rg --name aks-workshop-cluster --admin
 
@@ -40,9 +44,14 @@ https://dev.azure.com/modatta
 // docker 
 sudo snap install docker
 
+// Powwershell - linux
+https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7
+
+// Powershell - mac
+brew install powershell
+
 // azure-cli
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-sudo apt-get install -y powershell
 Install-Module -Name Az -AllowClobber
 
 // kubectl
