@@ -112,5 +112,5 @@ elseif ($mode -eq "delete")
     
 }
 
-Write-Host "Cluster Setup Successfully Done!"
+Write-Host "Nodepool Config Successfully Done!"
 
