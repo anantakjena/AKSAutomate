@@ -16,7 +16,7 @@ spec:
         containers:
         - name: captureorder
           image: akswkshpacr.azurecr.io/captureorder:v1.0.0
-          imagePullPolicy: IfNotPresent          
+          imagePullPolicy: IfNotPresent
           readinessProbe:
             httpGet:
               port: 8080
@@ -52,3 +52,5 @@ spec:
           - containerPort: 8080
         imagePullSecrets:
           - name: aks-workshop-secret
+        nodeSelector:
+          agentpool: akswkpool
