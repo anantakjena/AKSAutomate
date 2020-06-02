@@ -34,8 +34,11 @@ spec:
               cpu: "500m"
           env:
           - name: CAPTUREORDERSERVICEIP
-            value: "52.146.56.191"
+            value: "52.191.19.106"
           ports:
           - containerPort: 8080
         imagePullSecrets:
           - name: aks-workshop-secret
+        nodeSelector:
+          agentpool: akswkpool
+          
