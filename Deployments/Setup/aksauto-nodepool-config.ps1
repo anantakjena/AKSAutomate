@@ -66,7 +66,7 @@ elseif ($mode -eq "update")
     Write-Host "Updating Nodepool... $nodePoolName"
     
     $result = az aks nodepool update --cluster-name $clusterName `
-    --resource-group $resourceGroup --update-cluster-autoscaler `
+    --resource-group $resourceGroup --enable-cluster-autoscaler `
     --min-count $minNodeCount --max-count $maxNodeCount `
     --name $nodePoolName --query $configSuccessCommand
 
