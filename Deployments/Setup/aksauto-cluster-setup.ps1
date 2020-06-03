@@ -16,7 +16,9 @@ param([Parameter(Mandatory=$true)] [string] $mode,
         [Parameter(Mandatory=$false)] [string] $nodeVMSize,
         [Parameter(Mandatory=$false)] [string] $networkPlugin,
         [Parameter(Mandatory=$false)] [string] $networkPolicy,
-        [Parameter(Mandatory=$false)] [string] $nodePoolName,        
+        [Parameter(Mandatory=$false)] [string] $nodePoolName,
+        [Parameter(Mandatory=$false)] [string] $winNodeUserName,
+        [Parameter(Mandatory=$false)] [string] $winNodePassword,
         [Parameter(Mandatory=$false)] [string] $aadServerAppID,
         [Parameter(Mandatory=$false)] [string] $aadServerAppSecret,
         [Parameter(Mandatory=$false)] [string] $aadClientAppID,
@@ -79,7 +81,8 @@ if ($mode -eq "create")
 
     Write-Host "Creating Cluster... $clusterName"
 
-    $result = az aks create --name $clusterName --resource-group $resourceGroup `
+    $result = az aks create --name $clusterName `
+    --resource-group $resourceGroup `
     --kubernetes-version $version --location $location `
     --vnet-subnet-id $aksSubnet.Id --enable-addons $addons `
     --node-vm-size $nodeVMSize `
@@ -89,6 +92,8 @@ if ($mode -eq "create")
     --network-plugin $networkPlugin --network-policy $networkPolicy `
     --nodepool-name $nodePoolName --vm-set-type $vmSetType `
     --generate-ssh-keys `
+    --windows-admin-username $winNodeUserName `
+    --windows-admin-password $winNodePassword `
     --aad-client-app-id $aadClientAppID `
     --aad-server-app-id $aadServerAppID `
     --aad-server-app-secret $aadServerAppSecret `
