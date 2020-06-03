@@ -5,13 +5,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using IoTReceiverAPI.Models;
+using IoTMqttSenderAPI.Models;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Azure.Devices.Client;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace IoTReceiverAPI.Controllers
+namespace IoTMqttSenderAPI.Controllers
 {
 
     [ApiController]

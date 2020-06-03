@@ -1,5 +1,5 @@
 ﻿using System;
-namespace IoTReceiverAPI.Models
+namespace IoTMqttSenderAPI.Models
 {
     public class MqttMessage
     {
