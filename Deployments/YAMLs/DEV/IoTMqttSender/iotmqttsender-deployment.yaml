@@ -7,7 +7,7 @@ spec:
   selector:
       matchLabels:
         app: iotmqttsender
-  replicas: 20
+  replicas: 10
   template:
       metadata:
         labels:
@@ -15,7 +15,7 @@ spec:
       spec:
         containers:
         - name: iotmqttsender
-          image: akswkshpacr.azurecr.io/iotmqttsender:v1.0.1
+          image: akswkshpacr.azurecr.io/iotmqttsender:v1.0.0
           imagePullPolicy: IfNotPresent          
           resources:
             requests:
