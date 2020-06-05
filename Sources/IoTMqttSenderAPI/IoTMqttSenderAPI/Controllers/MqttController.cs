@@ -29,7 +29,7 @@ namespace IoTMqttSenderAPI.Controllers
         // POST api/values
         [HttpPost]
         [Route("api")]
-        public void Post([FromBody] MqttMessage mqttMessage)
+        public async Task Post([FromBody] MqttMessage mqttMessage)
         {
 
             StringValues connString;
@@ -38,12 +38,12 @@ namespace IoTMqttSenderAPI.Controllers
             Console.WriteLine(connString.ToString());
             Console.WriteLine(mqttMessageString);
 
-            Task.Run(async () =>
+            await Task.Run(() =>
             {
 
                 var dc = DeviceClient.CreateFromConnectionString(connString, TransportType.Mqtt);
                 var msg = new Message(Encoding.UTF8.GetBytes(mqttMessageString));
-                await dc.SendEventAsync(msg);                
+                dc.SendEventAsync(msg);                
                 Console.WriteLine("Sent");
 
             });

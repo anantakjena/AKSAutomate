@@ -15,7 +15,7 @@ spec:
       spec:
         containers:
         - name: iotmqttsender
-          image: akswkshpacr.azurecr.io/iotmqttsender:v1.0.0
+          image: akswkshpacr.azurecr.io/iotmqttsender:v1.0.2
           imagePullPolicy: IfNotPresent          
           resources:
             requests:
