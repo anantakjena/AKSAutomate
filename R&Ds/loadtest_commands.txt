@@ -4,6 +4,8 @@ az container delete -g aks-workshop-rg -n loadtest
 az container show -n loadtest -g aks-workshop-rg
 
 
+aadAppServerSecret: DaJKOynl6pr2Zv_wexc6iD~~~3KcSy6~7~
+
 docker pull azch/frontend
 docker pull azch/captureorder
 
@@ -11,13 +13,14 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm search repo bitnami
 helm install orders-mongo bitnami/mongodb --set mongodbUsername=orders-user,mongodbPassword=orders-password,mongodbDatabase=akschallenge
 
-k create secret docker-registry aks-workshop-secret --docker-server=akswkshpacr.azurecr.io --docker-username=77858573-aad4-48a2-a616-2b06593ed5f3 --docker-password=a54696af-319f-4885-b682-1386b14dc772 -n aks-workshop-dev
+k create secret docker-registry aks-workshop-secret --docker-server=akswkshpacr.azurecr.io --docker-username=f0254445-c5a6-4562-9698-6b73f95e3cbb --docker-password=f67c5035-f2ba-4aac-8294-6cf20031f7e4 -n aks-workshop-dev
 k create secret generic aks-workshop-mongo-secret --from-literal=mongohost=orders-mongo-mongodb.default.svc.cluster.local --from-literal=mongouser=orders-user --from-literal=mongopassword=orders-password -n aks-workshop-dev
+docker login akswkshpacr.azurecr.io -u f0254445-c5a6-4562-9698-6b73f95e3cbb -p f67c5035-f2ba-4aac-8294-6cf20031f7e4
 
-curl  http://52.191.19.106/v1/order
-curl -d '{"EmailAddress": "email@domain.com", "Product": "prod-1", "Total": 100}' -H "Content-Type: application/json" -X POST http://52.191.19.106/v1/order/
+curl  http://52.224.18.69/v1/order
+curl -d '{"EmailAddress": "email@domain.com", "Product": "prod-1", "Total": 100}' -H "Content-Type: application/json" -X POST http://52.224.18.69/v1/order/
 
-curl -kL https://aksfrontend.eastus.cloudapp.azure./fe
+curl -kL aksfrontend.eastus.cloudapp.azure.com/fe
 
 az aks get-credentials --resource-group aks-workshop-rg --name aks-workshop-cluster --admin
 
