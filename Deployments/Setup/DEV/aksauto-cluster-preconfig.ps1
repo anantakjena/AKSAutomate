@@ -1,5 +1,5 @@
 param([Parameter(Mandatory=$true)] [string] $resourceGroup,
-        [Parameter(Mandatory=$true)] [string] $projectName,        
+        [Parameter(Mandatory=$true)] [string] $projectName,
         [Parameter(Mandatory=$true)] [string] $location,
         [Parameter(Mandatory=$true)] [string] $clusterName,
         [Parameter(Mandatory=$true)] [string] $userEmail,
