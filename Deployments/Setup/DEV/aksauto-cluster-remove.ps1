@@ -5,6 +5,7 @@ param([Parameter(Mandatory=$true)] [string] $resourceGroup,
         [Parameter(Mandatory=$true)] [string] $keyVaultName,        
         [Parameter(Mandatory=$true)] [string] $aksVNetName,
         [Parameter(Mandatory=$true)] [string] $secVNetName,
+        [Parameter(Mandatory=$true)] [string] $dvoVNetName,
         [Parameter(Mandatory=$true)] [string] $appgwName,
         [Parameter(Mandatory=$true)] [string] $subscriptionId)
 
@@ -12,6 +13,8 @@ $aksSPIdName = $clusterName + "-sp-id"
 $publicIpAddressName = "$appgwName-pip"
 $acrPEPName = $projectName + "-acr-pep"
 $kvPEPName = $projectName + "-kv-pep"
+$dvoToSecPeerName = $projectName + "-devops-security-peer"
+$secToDvoPeerName = $projectName + "-security-devops-peer"
 $subscriptionCommand = "az account set -s $subscriptionId"
 
 # PS Select Subscriotion 
@@ -37,9 +40,6 @@ Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
 Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
 -Name $kvPEPName -Force
 
-Remove-AzVirtualNetwork -Name $secVNetName `
--ResourceGroupName $resourceGroup -Force
-
 Remove-AzContainerRegistry -Name $acrName `
 -ResourceGroupName $resourceGroup
 
@@ -61,5 +61,21 @@ if ($keyVault)
     Remove-AzKeyVault -InputObject $keyVault -Force
 
 }
+
+$secVnet = Get-AzVirtualNetwork -Name $secVNetName -ResourceGroupName $resourceGroup
+$dvoVnet = Get-AzVirtualNetwork -Name $dvoVNetName -ResourceGroupName $resourceGroup
+if ($secVnet && $dvoVnet)
+{
+
+    Remove-AzVirtualNetworkPeering -Name $dvoToSecPeerName `
+    -VirtualNetworkName $dvoVNetName
+
+    Remove-AzVirtualNetworkPeering -Name $secToDvoPeerName `
+    -VirtualNetworkName $secVNetName
+
+}
+
+Remove-AzVirtualNetwork -Name $secVNetName `
+-ResourceGroupName $resourceGroup -Force
 
 Write-Host "Successfully Removed!"
