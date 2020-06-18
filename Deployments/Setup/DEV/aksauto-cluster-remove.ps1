@@ -69,10 +69,12 @@ if ($secVnet && $dvoVnet)
 {
 
     Remove-AzVirtualNetworkPeering -Name $dvoToSecPeerName `
-    -VirtualNetworkName $dvoVNetName -ResourceGroupName $dvoResourceGroup
+    -VirtualNetworkName $dvoVNetName `
+    -ResourceGroupName $dvoResourceGroup -Force
 
     Remove-AzVirtualNetworkPeering -Name $secToDvoPeerName `
-    -VirtualNetworkName $secVNetName -ResourceGroupName $resourceGroup
+    -VirtualNetworkName $secVNetName `
+    -ResourceGroupName $resourceGroup -Force
 
 }
 
