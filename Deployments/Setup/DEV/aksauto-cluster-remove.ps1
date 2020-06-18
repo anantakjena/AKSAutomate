@@ -37,7 +37,7 @@ Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
 Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
 -Name $kvPEPName -Force
 
-Remove-AzVirtualNetwork -Name $aksSecurityVNetName `
+Remove-AzVirtualNetwork -Name $secVNetName `
 -ResourceGroupName $resourceGroup -Force
 
 Remove-AzContainerRegistry -Name $acrName `
