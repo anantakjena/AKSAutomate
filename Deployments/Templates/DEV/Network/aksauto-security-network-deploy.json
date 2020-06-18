@@ -1,0 +1,86 @@
+  {
+      "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "secVNetName": {
+          "type": "string"
+        },
+        "secVNetPrefix": {
+          "type": "string"
+        },      
+        "acrSubnetName": {
+          "type": "string"
+        },
+        "acrSubnetPrefix": {
+          "type": "string"     
+        },      
+        "kvSubnetName": {
+          "type": "string"
+        },
+        "kvSubnetPrefix": {
+          "type": "string"
+        },      
+        "location": {
+          "type": "string",
+          "defaultValue": "[resourceGroup().location]"
+        }
+      },
+      "variables": {},
+      "resources": [
+        {
+          "apiVersion": "2018-10-01",
+          "type": "Microsoft.Network/virtualNetworks",
+          "name": "[parameters('secVNetName')]",
+          "location": "[parameters('location')]",
+          "properties": {
+            "addressSpace": {
+              "addressPrefixes": [
+                "[parameters('secVNetPrefix')]"
+              ]
+            }
+          },
+          "resources": [
+            {
+              "apiVersion": "2019-12-01",
+              "type": "subnets",
+              "location": "[parameters('location')]",
+              "name": "[parameters('acrSubnetName')]",
+              "dependsOn": [
+                "[parameters('secVNetName')]"
+              ],
+              "properties": {
+                "addressPrefix": "[parameters('acrSubnetPrefix')]",
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "serviceEndpoints": [
+                  {
+                    "service": "Microsoft.ContainerRegistry"                    
+                  }
+                ]
+              }            
+            },          
+            {
+              "apiVersion": "2019-12-01",
+              "type": "subnets",
+              "location": "[parameters('location')]",
+              "name": "[parameters('kvSubnetName')]",
+              "dependsOn": [
+                "[parameters('secVNetName')]",
+                "[parameters('acrSubnetName')]"
+              ],
+              "properties": {
+                "addressPrefix": "[parameters('kvSubnetPrefix')]",
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled",
+                "serviceEndpoints": [
+                  {
+                    "service": "Microsoft.KeyVault"                    
+                  }
+                ]
+              }
+            }            
+          ]
+        }
+      ]
+  }
+    

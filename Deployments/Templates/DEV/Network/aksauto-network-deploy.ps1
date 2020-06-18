@@ -1,14 +1,14 @@
-param([Parameter(Mandatory=$false)] [string] $rg,
-        [Parameter(Mandatory=$false)] [string] $fpath,
-        [Parameter(Mandatory=$false)] [string] $deployFileName,
-        [Parameter(Mandatory=$false)] [string] $aksVNetName,
-        [Parameter(Mandatory=$false)] [string] $aksVNetPrefix,
-        [Parameter(Mandatory=$false)] [string] $aksSubnetName,
-        [Parameter(Mandatory=$false)] [string] $aksSubNetPrefix,
-        [Parameter(Mandatory=$false)] [string] $appgwSubnetName,
-        [Parameter(Mandatory=$false)] [string] $appgwSubnetPrefix,
-        [Parameter(Mandatory=$false)] [string] $vrnSubnetName,
-        [Parameter(Mandatory=$false)] [string] $vrnSubnetPrefix)
+param([Parameter(Mandatory=$true)] [string] $rg,
+        [Parameter(Mandatory=$true)] [string] $fpath,
+        [Parameter(Mandatory=$true)] [string] $deployFileName,
+        [Parameter(Mandatory=$true)] [string] $aksVNetName,
+        [Parameter(Mandatory=$true)] [string] $aksVNetPrefix,
+        [Parameter(Mandatory=$true)] [string] $aksSubnetName,
+        [Parameter(Mandatory=$true)] [string] $aksSubNetPrefix,
+        [Parameter(Mandatory=$true)] [string] $appgwSubnetName,
+        [Parameter(Mandatory=$true)] [string] $appgwSubnetPrefix,
+        [Parameter(Mandatory=$true)] [string] $vrnSubnetName,
+        [Parameter(Mandatory=$true)] [string] $vrnSubnetPrefix)
 
 Test-AzResourceGroupDeployment -ResourceGroupName $rg `
 -TemplateFile "$fpath/Network/$deployFileName.json" `

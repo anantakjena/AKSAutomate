@@ -18,16 +18,23 @@
       },
       "acrSku": {
         "type": "string",
-        "defaultValue": "Standard",
+        "defaultValue": "Premium",
         "allowedValues": [
           "Basic",
           "Standard",
           "Premium"
         ]
+      },
+      "vnetName": {
+        "type": "string"      
+      },
+      "subnetName": {
+        "type": "string"      
       }
     },
     "variables": {
-      "loginServer": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName'))]"
+      "loginServer": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName'))]",
+      "subnetId": "[resourceId('Microsoft.Network/virtualnetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
     },
     "resources": [
       {
@@ -45,7 +52,16 @@
           "tier": "[parameters('acrSku')]"
         },
         "properties": {
-          "adminUserEnabled": "[parameters('acrAdminUserEnabled')]"
+          "adminUserEnabled": "[parameters('acrAdminUserEnabled')]",
+          "networkRuleSet": {
+          "defaultAction": "Deny",
+          "virtualNetworkRules": [
+              {
+                "action": "Allow",
+                "id": "[variables('subnetId')]"
+              }
+            ]
+          }
         }
       }
     ],

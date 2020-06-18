@@ -2,12 +2,16 @@ param([Parameter(Mandatory=$true)] [string] $rg,
         [Parameter(Mandatory=$true)] [string] $fpath,
         [Parameter(Mandatory=$true)] [string] $deployFileName,
         [Parameter(Mandatory=$true)] [string] $keyVaultName,
+        [Parameter(Mandatory=$true)] [string] $vnetName,
+        [Parameter(Mandatory=$true)] [string] $subnetName,
         [Parameter(Mandatory=$true)] [string] $objectId)
 
 Test-AzResourceGroupDeployment -ResourceGroupName $rg `
 -TemplateFile "$fpath/KeyVault/$deployFileName.json" `
--keyVaultName $keyVaultName -objectId $objectId
+-keyVaultName $keyVaultName -objectId $objectId `
+-vnetName $vnetName -subnetName $subnetName
 
 New-AzResourceGroupDeployment -ResourceGroupName $rg `
 -TemplateFile "$fpath/KeyVault/$deployFileName.json" `
--keyVaultName $keyVaultName -objectId $objectId
+-keyVaultName $keyVaultName -objectId $objectId `
+-vnetName $vnetName -subnetName $subnetName

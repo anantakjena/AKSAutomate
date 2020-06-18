@@ -1,23 +1,32 @@
-param([Parameter(Mandatory=$false)] [string] $resourceGroup,
-        [Parameter(Mandatory=$false)] [string] $location,
-        [Parameter(Mandatory=$false)] [string] $clusterName,
-        [Parameter(Mandatory=$false)] [string] $userEmail,
-        [Parameter(Mandatory=$false)] [string] $acrName,
-        [Parameter(Mandatory=$false)] [string] $keyVaultName,
-        [Parameter(Mandatory=$false)] [string] $aksVNetName,
-        [Parameter(Mandatory=$false)] [string] $aksVNetPrefix,
-        [Parameter(Mandatory=$false)] [string] $aksSubnetName,
-        [Parameter(Mandatory=$false)] [string] $aksSubNetPrefix,
-        [Parameter(Mandatory=$false)] [string] $appgwSubnetName,
-        [Parameter(Mandatory=$false)] [string] $appgwSubnetPrefix,
-        [Parameter(Mandatory=$false)] [string] $vrnSubnetName,
-        [Parameter(Mandatory=$false)] [string] $vrnSubnetPrefix,
-        [Parameter(Mandatory=$false)] [string] $appgwName,        
-        [Parameter(Mandatory=$false)] [string] $networkTemplateFileName,
-        [Parameter(Mandatory=$false)] [string] $acrTemplateFileName,
-        [Parameter(Mandatory=$false)] [string] $keyVaultTemplateFileName,
-        [Parameter(Mandatory=$false)] [string] $subscriptionId,
-        [Parameter(Mandatory=$false)] [string] $baseFolderPath)
+param([Parameter(Mandatory=$true)] [string] $resourceGroup,
+        [Parameter(Mandatory=$true)] [string] $projectName,        
+        [Parameter(Mandatory=$true)] [string] $location,
+        [Parameter(Mandatory=$true)] [string] $clusterName,
+        [Parameter(Mandatory=$true)] [string] $userEmail,
+        [Parameter(Mandatory=$true)] [string] $acrName,
+        [Parameter(Mandatory=$true)] [string] $keyVaultName,
+        [Parameter(Mandatory=$true)] [string] $aksVNetName,
+        [Parameter(Mandatory=$true)] [string] $aksVNetPrefix,
+        [Parameter(Mandatory=$true)] [string] $secVNetName,
+        [Parameter(Mandatory=$true)] [string] $secVNetPrefix,
+        [Parameter(Mandatory=$true)] [string] $aksSubnetName,
+        [Parameter(Mandatory=$true)] [string] $aksSubNetPrefix,
+        [Parameter(Mandatory=$true)] [string] $acrSubnetName,
+        [Parameter(Mandatory=$true)] [string] $acrSubNetPrefix,
+        [Parameter(Mandatory=$true)] [string] $kvSubnetName,
+        [Parameter(Mandatory=$true)] [string] $kvSubnetPrefix,
+        [Parameter(Mandatory=$true)] [string] $appgwSubnetName,
+        [Parameter(Mandatory=$true)] [string] $appgwSubnetPrefix,
+        [Parameter(Mandatory=$true)] [string] $vrnSubnetName,
+        [Parameter(Mandatory=$true)] [string] $vrnSubnetPrefix,
+        [Parameter(Mandatory=$true)] [string] $appgwName,        
+        [Parameter(Mandatory=$true)] [string] $networkTemplateFileName,
+        [Parameter(Mandatory=$true)] [string] $securityNetworkTemplateFileName,        
+        [Parameter(Mandatory=$true)] [string] $acrTemplateFileName,
+        [Parameter(Mandatory=$true)] [string] $kvTemplateFileName,
+        [Parameter(Mandatory=$true)] [string] $pepTemplateFileName,        
+        [Parameter(Mandatory=$true)] [string] $subscriptionId,
+        [Parameter(Mandatory=$true)] [string] $baseFolderPath)
 
 $vnetRole = "Network Contributor"
 $aksSPIdName = $clusterName + "-sp-id"
@@ -25,7 +34,15 @@ $aksSPSecretName = $clusterName + "-sp-secret"
 $acrSPIdName = $acrName + "-sp-id"
 $acrSPSecretName = $acrName + "-sp-secret"
 $certSecretName = $appgwName + "-cert-secret"
-$templatesFolderPath = $baseFolderPath + "/Templates"
+$acrPEPName = $projectName + "-acr-pep"
+$acrPEPConnectionName = $projectName + "-acr-pep-conn"
+$acrPEPResourceType = "Microsoft.ContainerRegistry/registries"
+$acrPEPSubResourceId = "registry"
+$kvPEPName = $projectName + "-kv-pep"
+$kvPEPConnectionName = $projectName + "-kv-pep-conn"
+$kvPEPResourceType = "Microsoft.KeyVault/vaults"
+$kvPEPSubResourceId = "vault"
+$templatesFolderPath = $baseFolderPath + "/Templates/DEV"
 $certPFXFilePath = $baseFolderPath + "/Certs/aksauto.pfx"
 
 # Assuming Logged In
@@ -37,8 +54,17 @@ $objectId = $loggedInUser.Id
 $networkNames = "-aksVNetName $aksVNetName -aksVNetPrefix $aksVNetPrefix -aksSubnetName $aksSubnetName -aksSubNetPrefix $aksSubNetPrefix -appgwSubnetName $appgwSubnetName -appgwSubnetPrefix $appgwSubnetPrefix -vrnSubnetName $vrnSubnetName -vrnSubnetPrefix $vrnSubnetPrefix"
 $networkDeployCommand = "/Network/$networkTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $networkTemplateFileName $networkNames"
 
-$acrDeployCommand = "/ACR/$acrTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $acrTemplateFileName -acrName $acrName"
-$keyVaultDeployCommand = "/KeyVault/$keyVaultTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $keyVaultTemplateFileName -keyVaultName $keyVaultName -objectId $objectId"
+$securityNetworkNames = "-secVNetName $secVNetName -secVNetPrefix $secVNetPrefix -acrSubnetName $acrSubnetName -acrSubNetPrefix $acrSubNetPrefix -kvSubnetName $kvSubnetName -kvSubnetPrefix $kvSubnetPrefix"
+$securityNetworkDeployCommand = "/Network/$securityNetworkTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $securityNetworkTemplateFileName $securityNetworkNames"
+
+$acrDeployCommand = "/ACR/$acrTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $acrTemplateFileName -acrName $acrName -vnetName $vnetName -subnetName $subnetName"
+$keyVaultDeployCommand = "/KeyVault/$kvTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $kvTemplateFileName -keyVaultName $keyVaultName -vnetName $vnetName -subnetName $subnetName -objectId $objectId"
+
+$acrPEPNames = "-privateEndpointName $acrPEPName -privateEndpointConnectionName $acrPEPConnectionName -pepResourceType $acrPEPResourceType -pepResourceName $acrName -subResourceId $acrPEPSubResourceId"
+$acrPEPDeployCommand = "/Network/$pepTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $pepTemplateFileName -vnetName $secVNetName -subnetName $acrSubnetName $acrPEPNames"
+
+$kvPEPNames = "-privateEndpointName $kvPEPName -privateEndpointConnectionName $kvPEPConnectionName -pepResourceType $kvPEPResourceType -pepResourceName $keyVaultName -subResourceId $kvPEPSubResourceId"
+$kvPEPDeployCommand = "/Network/$pepTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $pepTemplateFileName -vnetName $secVNetName -subnetName $kvSubnetName $kvPEPNames"
 
 # PS Select Subscriotion 
 Select-AzSubscription -SubscriptionId $subscriptionId
@@ -89,11 +115,20 @@ Write-Host $acrSP.ApplicationId
 $networkDeployPath = $templatesFolderPath + $networkDeployCommand
 Invoke-Expression -Command $networkDeployPath
 
+$securityNetworkDeployPath = $templatesFolderPath + $securityNetworkDeployCommand
+Invoke-Expression -Command $securityNetworkDeployPath
+
 $acrDeployPath = $templatesFolderPath + $acrDeployCommand
 Invoke-Expression -Command $acrDeployPath
 
 $keyVaultDeployPath = $templatesFolderPath + $keyVaultDeployCommand
 Invoke-Expression -Command $keyVaultDeployPath
+
+$acrPEPDeployPath = $templatesFolderPath + $acrPEPDeployCommand
+Invoke-Expression -Command $acrPEPDeployPath
+
+$kvPEPDeployPath = $templatesFolderPath + $kvPEPDeployCommand
+Invoke-Expression -Command $kvPEPDeployPath
 
 Write-Host $certPFXFilePath
 $certBytes = [System.IO.File]::ReadAllBytes($certPFXFilePath)
