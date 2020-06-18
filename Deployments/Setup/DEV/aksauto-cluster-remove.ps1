@@ -1,4 +1,5 @@
 param([Parameter(Mandatory=$true)] [string] $resourceGroup,
+        [Parameter(Mandatory=$true)] [string] $dvoResourceGroup,
         [Parameter(Mandatory=$true)] [string] $projectName,
         [Parameter(Mandatory=$true)] [string] $clusterName,
         [Parameter(Mandatory=$true)] [string] $acrName,
@@ -63,15 +64,15 @@ if ($keyVault)
 }
 
 $secVnet = Get-AzVirtualNetwork -Name $secVNetName -ResourceGroupName $resourceGroup
-$dvoVnet = Get-AzVirtualNetwork -Name $dvoVNetName -ResourceGroupName $resourceGroup
+$dvoVnet = Get-AzVirtualNetwork -Name $dvoVNetName -ResourceGroupName $dvoResourceGroup
 if ($secVnet && $dvoVnet)
 {
 
     Remove-AzVirtualNetworkPeering -Name $dvoToSecPeerName `
-    -VirtualNetworkName $dvoVNetName
+    -VirtualNetworkName $dvoVNetName -ResourceGroupName $dvoResourceGroup
 
     Remove-AzVirtualNetworkPeering -Name $secToDvoPeerName `
-    -VirtualNetworkName $secVNetName
+    -VirtualNetworkName $secVNetName -ResourceGroupName $resourceGroup
 
 }
 

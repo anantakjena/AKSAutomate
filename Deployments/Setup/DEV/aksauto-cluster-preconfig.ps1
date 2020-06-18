@@ -1,4 +1,5 @@
 param([Parameter(Mandatory=$true)] [string] $resourceGroup,
+        [Parameter(Mandatory=$true)] [string] $dvoResourceGroup,
         [Parameter(Mandatory=$true)] [string] $projectName,
         [Parameter(Mandatory=$true)] [string] $location,
         [Parameter(Mandatory=$true)] [string] $clusterName,
@@ -122,7 +123,7 @@ $securityNetworkDeployPath = $templatesFolderPath + $securityNetworkDeployComman
 Invoke-Expression -Command $securityNetworkDeployPath
 
 $secVnet = Get-AzVirtualNetwork -Name $secVNetName -ResourceGroupName $resourceGroup
-$dvoVnet = Get-AzVirtualNetwork -Name $dvoVNetName -ResourceGroupName $resourceGroup
+$dvoVnet = Get-AzVirtualNetwork -Name $dvoVNetName -ResourceGroupName $dvoResourceGroup
 if ($secVnet && $dvoVnet)
 {
 
