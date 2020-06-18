@@ -57,8 +57,8 @@ $networkDeployCommand = "/Network/$networkTemplateFileName.ps1 -rg $resourceGrou
 $securityNetworkNames = "-secVNetName $secVNetName -secVNetPrefix $secVNetPrefix -acrSubnetName $acrSubnetName -acrSubNetPrefix $acrSubNetPrefix -kvSubnetName $kvSubnetName -kvSubnetPrefix $kvSubnetPrefix"
 $securityNetworkDeployCommand = "/Network/$securityNetworkTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $securityNetworkTemplateFileName $securityNetworkNames"
 
-$acrDeployCommand = "/ACR/$acrTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $acrTemplateFileName -acrName $acrName -vnetName $vnetName -subnetName $subnetName"
-$keyVaultDeployCommand = "/KeyVault/$kvTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $kvTemplateFileName -keyVaultName $keyVaultName -vnetName $vnetName -subnetName $subnetName -objectId $objectId"
+$acrDeployCommand = "/ACR/$acrTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $acrTemplateFileName -acrName $acrName -vnetName $secVNetName -subnetName $acrSubnetName"
+$keyVaultDeployCommand = "/KeyVault/$kvTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $kvTemplateFileName -keyVaultName $keyVaultName -vnetName $secVNetName -subnetName $kvSubnetName -objectId $objectId"
 
 $acrPEPNames = "-privateEndpointName $acrPEPName -privateEndpointConnectionName $acrPEPConnectionName -pepResourceType $acrPEPResourceType -pepResourceName $acrName -subResourceId $acrPEPSubResourceId"
 $acrPEPDeployCommand = "/Network/$pepTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $pepTemplateFileName -vnetName $secVNetName -subnetName $acrSubnetName $acrPEPNames"
