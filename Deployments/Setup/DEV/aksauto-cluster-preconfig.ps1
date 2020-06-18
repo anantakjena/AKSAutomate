@@ -9,6 +9,8 @@ param([Parameter(Mandatory=$true)] [string] $resourceGroup,
         [Parameter(Mandatory=$true)] [string] $aksVNetPrefix,
         [Parameter(Mandatory=$true)] [string] $secVNetName,
         [Parameter(Mandatory=$true)] [string] $secVNetPrefix,
+        [Parameter(Mandatory=$true)] [string] $dvoVNetName,
+        [Parameter(Mandatory=$true)] [string] $dvoVNetPrefix,
         [Parameter(Mandatory=$true)] [string] $aksSubnetName,
         [Parameter(Mandatory=$true)] [string] $aksSubNetPrefix,
         [Parameter(Mandatory=$true)] [string] $acrSubnetName,
@@ -19,6 +21,8 @@ param([Parameter(Mandatory=$true)] [string] $resourceGroup,
         [Parameter(Mandatory=$true)] [string] $appgwSubnetPrefix,
         [Parameter(Mandatory=$true)] [string] $vrnSubnetName,
         [Parameter(Mandatory=$true)] [string] $vrnSubnetPrefix,
+        [Parameter(Mandatory=$true)] [string] $dvoSubnetName,
+        [Parameter(Mandatory=$true)] [string] $dvoSubnetPrefix,
         [Parameter(Mandatory=$true)] [string] $appgwName,        
         [Parameter(Mandatory=$true)] [string] $networkTemplateFileName,
         [Parameter(Mandatory=$true)] [string] $securityNetworkTemplateFileName,        
@@ -42,6 +46,8 @@ $kvPEPName = $projectName + "-kv-pep"
 $kvPEPConnectionName = $projectName + "-kv-pep-conn"
 $kvPEPResourceType = "Microsoft.KeyVault/vaults"
 $kvPEPSubResourceId = "vault"
+$dvoToSecPeerName = $projectName + "-devops-security-peer"
+$secToDvoPeerName = $projectName + "-security-devops-peer"
 $templatesFolderPath = $baseFolderPath + "/Templates/DEV"
 $certPFXFilePath = $baseFolderPath + "/Certs/aksauto.pfx"
 
@@ -117,6 +123,21 @@ Invoke-Expression -Command $networkDeployPath
 
 $securityNetworkDeployPath = $templatesFolderPath + $securityNetworkDeployCommand
 Invoke-Expression -Command $securityNetworkDeployPath
+
+$secVnet = Get-AzVirtualNetwork -Name $secVNetName -ResourceGroupName $resourceGroup
+$dvoVnet = Get-AzVirtualNetwork -Name $dvoVNetName -ResourceGroupName $resourceGroup
+if ($secVnet && $dvoVnet)
+{
+
+    Add-AzVirtualNetworkPeering -Name $dvoToSecPeerName `
+    -VirtualNetwork $dvoVnet `
+    -RemoteVirtualNetworkId $secVnet.Id
+
+    Add-AzVirtualNetworkPeering -Name $secToDvoPeerName `
+    -VirtualNetwork $secVnet `
+    -RemoteVirtualNetworkId $dvoVnet.Id
+
+}
 
 $acrDeployPath = $templatesFolderPath + $acrDeployCommand
 Invoke-Expression -Command $acrDeployPath
