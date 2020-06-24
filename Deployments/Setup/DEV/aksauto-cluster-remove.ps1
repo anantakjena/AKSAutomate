@@ -1,22 +1,24 @@
-param([Parameter(Mandatory=$true)] [string] $resourceGroup,
-        [Parameter(Mandatory=$true)] [string] $dvoResourceGroup,
-        [Parameter(Mandatory=$true)] [string] $projectName,
-        [Parameter(Mandatory=$true)] [string] $clusterName,
-        [Parameter(Mandatory=$true)] [string] $acrName,
-        [Parameter(Mandatory=$true)] [string] $keyVaultName,        
-        [Parameter(Mandatory=$true)] [string] $aksVNetName,
-        [Parameter(Mandatory=$true)] [string] $secVNetName,
-        [Parameter(Mandatory=$true)] [string] $dvoVNetName,
-        [Parameter(Mandatory=$true)] [string] $appgwName,
-        [Parameter(Mandatory=$true)] [string] $subscriptionId)
+param([Parameter(Mandatory=$false)] [string] $resourceGroup = "aks-workshop-rg",
+        [Parameter(Mandatory=$false)] [string] $projectName = "aks-workshop",
+        [Parameter(Mandatory=$false)] [string] $clusterName = "aks-workshop-cluster",
+        [Parameter(Mandatory=$false)] [string] $acrName = "akswkshpacr",
+        [Parameter(Mandatory=$false)] [string] $keyVaultName = "aks-workshop-kv",
+        [Parameter(Mandatory=$false)] [string] $aksVNetName = "aks-workshop-vnet",        
+        [Parameter(Mandatory=$false)] [string] $appgwName = "aks-workshop-appgw",
+        [Parameter(Mandatory=$false)] [string] $subscriptionId = "6bdcc705-8db6-4029-953a-e749070e6db6")
 
 $aksSPIdName = $clusterName + "-sp-id"
 $publicIpAddressName = "$appgwName-pip"
-$acrPEPName = $projectName + "-acr-pep"
-$kvPEPName = $projectName + "-kv-pep"
-$dvoToSecPeerName = $projectName + "-devops-security-peer"
-$secToDvoPeerName = $projectName + "-security-devops-peer"
+$acrPrivateDnsZone = "privateLink.azurecr.io"
+$kvPrivateDnsZone = "privatelink.vaultcore.azure.net"
 $subscriptionCommand = "az account set -s $subscriptionId"
+
+$acrAKSPepName = $projectName + "acr-aks-pep"
+$acrDevOpsPepName = $projectName + "acr-devops-pep"
+$kvDevOpsPepName = $projectName + "kv-devops-pep"
+$acrAKSVnetLinkName = $acrAKSPepName + "-link"
+$acrDevOpsVnetLinkName = $acrDevOpsPepName + "-link"
+$kvDevOpsVnetLinkName = $kvDevOpsPepName + "-link"
 
 # PS Select Subscriotion 
 Select-AzSubscription -SubscriptionId $subscriptionId
@@ -32,14 +34,46 @@ Remove-AzApplicationGateway -Name $appgwName `
 Remove-AzPublicIpAddress -Name $publicIpAddressName `
 -ResourceGroupName $resourceGroup -Force
 
+Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
+-Name $acrAKSPepName -Force
+
+Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
+-Name $acrDevOpsPepName -Force
+
+Remove-AzPrivateDnsVirtualNetworkLink `
+-ResourceGroupName $resourceGroup -ZoneName $acrPrivateDnsZone `
+-Name $acrAKSVnetLinkName
+
+Remove-AzPrivateDnsVirtualNetworkLink `
+-ResourceGroupName $resourceGroup -ZoneName $acrPrivateDnsZone `
+-Name $acrDevOpsVnetLinkName
+
+$dnsRecordsList = Get-AzPrivateDnsRecordSet -ResourceGroupName $resourceGroup `
+-ZoneName $acrPrivateDnsZone -RecordType "A"
+
+Remove-AzPrivateDnsRecordSet -RecordSet $dnsRecordsList[0]
+Remove-AzPrivateDnsRecordSet -RecordSet $dnsRecordsList[1]
+
+Remove-AzPrivateDnsZone -ResourceGroupName $resourceGroup `
+-Name $acrPrivateDnsZone
+
+Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
+-Name $kvDevOpsPepName -Force
+
+Remove-AzPrivateDnsVirtualNetworkLink `
+-ResourceGroupName $resourceGroup -ZoneName $kvPrivateDnsZone `
+-Name $kvDevOpsVnetLinkName
+
+$dnsRecord = Get-AzPrivateDnsRecordSet -ResourceGroupName $resourceGroup `
+-ZoneName $kvPrivateDnsZone -RecordType "A"
+
+Remove-AzPrivateDnsRecordSet -RecordSet $dnsRecord
+
+Remove-AzPrivateDnsZone -ResourceGroupName $resourceGroup `
+-Name $kvPrivateDnsZone
+
 Remove-AzVirtualNetwork -Name $aksVNetName `
 -ResourceGroupName $resourceGroup -Force
-
-Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
--Name $acrPEPName -Force
-
-Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
--Name $kvPEPName -Force
 
 Remove-AzContainerRegistry -Name $acrName `
 -ResourceGroupName $resourceGroup
@@ -52,7 +86,7 @@ if ($keyVault)
     $spAppId = Get-AzKeyVaultSecret -VaultName $keyVaultName `
     -Name $aksSPIdName
     if ($spAppId)
-    {        
+    {
      
         Remove-AzADServicePrincipal `
         -ApplicationId $spAppId.SecretValueText -Force
@@ -62,23 +96,5 @@ if ($keyVault)
     Remove-AzKeyVault -InputObject $keyVault -Force
 
 }
-
-$secVnet = Get-AzVirtualNetwork -Name $secVNetName -ResourceGroupName $resourceGroup
-$dvoVnet = Get-AzVirtualNetwork -Name $dvoVNetName -ResourceGroupName $dvoResourceGroup
-if ($secVnet && $dvoVnet)
-{
-
-    Remove-AzVirtualNetworkPeering -Name $dvoToSecPeerName `
-    -VirtualNetworkName $dvoVNetName `
-    -ResourceGroupName $dvoResourceGroup -Force
-
-    Remove-AzVirtualNetworkPeering -Name $secToDvoPeerName `
-    -VirtualNetworkName $secVNetName `
-    -ResourceGroupName $resourceGroup -Force
-
-}
-
-Remove-AzVirtualNetwork -Name $secVNetName `
--ResourceGroupName $resourceGroup -Force
 
 Write-Host "Successfully Removed!"

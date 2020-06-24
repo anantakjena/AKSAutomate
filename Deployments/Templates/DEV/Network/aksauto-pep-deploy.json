@@ -14,6 +14,9 @@
         "pepResourceName": {
             "type": "string"
         },
+        "vnetRG": {
+            "type": "string"
+        },
         "vnetName": {
             "type": "string"
         },
@@ -25,8 +28,9 @@
         }
     },
     "variables": {       
-        "privateLinkServiceId": "[resourceId(parameters('pepResourceType'), parameters('pepResourceName'))]"
-  },
+        "privateLinkServiceId": "[resourceId(parameters('pepResourceType'), parameters('pepResourceName'))]",
+        "subnetId": "[resourceId(parameters('vnetRG'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
+    },
     "resources": [
         {
             "apiVersion": "2019-04-01",
@@ -47,7 +51,7 @@
                 ],
                 "manualPrivateLinkServiceConnections": [],
                 "subnet": {
-                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName') )]"
+                    "id": "[variables('subnetId')]"
                 }
             }
         }

@@ -24,25 +24,17 @@
           "Standard",
           "Premium"
         ]
-      },
-      "vnetName": {
-        "type": "string"      
-      },
-      "subnetName": {
-        "type": "string"      
       }
     },
     "variables": {
-      "loginServer": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName'))]",
-      "subnetId": "[resourceId('Microsoft.Network/virtualnetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
+      "loginServer": "[resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName'))]"      
     },
     "resources": [
       {
         "name": "[parameters('acrName')]",
         "type": "Microsoft.ContainerRegistry/registries",
         "apiVersion": "2019-05-01",
-        "location": "[parameters('location')]",
-        "comments": "Container registry for storing docker images",
+        "location": "[parameters('location')]",        
         "tags": {
           "displayName": "Container Registry",
           "container.registry": "[parameters('acrName')]"
@@ -54,13 +46,7 @@
         "properties": {
           "adminUserEnabled": "[parameters('acrAdminUserEnabled')]",
           "networkRuleSet": {
-          "defaultAction": "Deny",
-          "virtualNetworkRules": [
-              {
-                "action": "Allow",
-                "id": "[variables('subnetId')]"
-              }
-            ]
+          "defaultAction": "Allow"          
           }
         }
       }

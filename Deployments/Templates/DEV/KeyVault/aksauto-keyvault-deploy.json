@@ -60,21 +60,12 @@
     },
     "skuName": {
       "type": "string",
-      "defaultValue": "Standard",
+      "defaultValue": "Premium",
       "allowedValues": [
         "Standard",
         "Premium"
       ]
-    },
-    "vnetName": {
-      "type": "string"      
-    },
-    "subnetName": {
-      "type": "string"      
     }
-  },
-  "variables": {
-    "subnetId": "[resourceId('Microsoft.Network/virtualnetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
   },
   "resources": [
     {
@@ -104,12 +95,7 @@
         },
         "networkAcls": {
           "bypass": "AzureServices",
-          "defaultAction": "Deny",
-          "virtualNetworkRules": [
-            {
-                "id": "[variables('subnetId')]"
-            }
-          ]
+          "defaultAction": "Allow"          
         }        
       }
     }

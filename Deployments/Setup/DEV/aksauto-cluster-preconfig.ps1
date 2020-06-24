@@ -1,34 +1,31 @@
-param([Parameter(Mandatory=$true)] [string] $resourceGroup,
-        [Parameter(Mandatory=$true)] [string] $dvoResourceGroup,
-        [Parameter(Mandatory=$true)] [string] $projectName,
-        [Parameter(Mandatory=$true)] [string] $location,
-        [Parameter(Mandatory=$true)] [string] $clusterName,
-        [Parameter(Mandatory=$true)] [string] $userEmail,
-        [Parameter(Mandatory=$true)] [string] $acrName,
-        [Parameter(Mandatory=$true)] [string] $keyVaultName,
-        [Parameter(Mandatory=$true)] [string] $aksVNetName,
-        [Parameter(Mandatory=$true)] [string] $aksVNetPrefix,
-        [Parameter(Mandatory=$true)] [string] $secVNetName,
-        [Parameter(Mandatory=$true)] [string] $secVNetPrefix,
-        [Parameter(Mandatory=$true)] [string] $dvoVNetName,        
-        [Parameter(Mandatory=$true)] [string] $aksSubnetName,
-        [Parameter(Mandatory=$true)] [string] $aksSubNetPrefix,
-        [Parameter(Mandatory=$true)] [string] $acrSubnetName,
-        [Parameter(Mandatory=$true)] [string] $acrSubNetPrefix,
-        [Parameter(Mandatory=$true)] [string] $kvSubnetName,
-        [Parameter(Mandatory=$true)] [string] $kvSubnetPrefix,
-        [Parameter(Mandatory=$true)] [string] $appgwSubnetName,
-        [Parameter(Mandatory=$true)] [string] $appgwSubnetPrefix,
-        [Parameter(Mandatory=$true)] [string] $vrnSubnetName,
-        [Parameter(Mandatory=$true)] [string] $vrnSubnetPrefix,        
-        [Parameter(Mandatory=$true)] [string] $appgwName,        
-        [Parameter(Mandatory=$true)] [string] $networkTemplateFileName,
-        [Parameter(Mandatory=$true)] [string] $securityNetworkTemplateFileName,        
-        [Parameter(Mandatory=$true)] [string] $acrTemplateFileName,
-        [Parameter(Mandatory=$true)] [string] $kvTemplateFileName,
-        [Parameter(Mandatory=$true)] [string] $pepTemplateFileName,        
-        [Parameter(Mandatory=$true)] [string] $subscriptionId,
-        [Parameter(Mandatory=$true)] [string] $baseFolderPath)
+param([Parameter(Mandatory=$false)] [string] $resourceGroup = "aks-workshop-rg",
+        [Parameter(Mandatory=$false)] [string] $dvoResourceGroup = "devops-workshop-rg",
+        [Parameter(Mandatory=$false)] [string] $projectName = "aks-workshop",
+        [Parameter(Mandatory=$false)] [string] $location = "eastus",
+        [Parameter(Mandatory=$false)] [string] $clusterName = "aks-workshop-cluster",
+        [Parameter(Mandatory=$false)] [string] $acrName = "akswkshpacr",
+        [Parameter(Mandatory=$false)] [string] $keyVaultName = "aks-workshop-kv",
+        [Parameter(Mandatory=$false)] [string] $aksVNetName = "aks-workshop-vnet",
+        [Parameter(Mandatory=$false)] [string] $aksVNetPrefix = "173.0.0.0/16",
+        [Parameter(Mandatory=$false)] [string] $dvoVNetName = "devops-workshop-vnet",
+        [Parameter(Mandatory=$false)] [string] $dvoSubetName = "devops-workshop-subnet",
+        [Parameter(Mandatory=$false)] [string] $aksSubnetName = "aks-workshop-subnet",
+        [Parameter(Mandatory=$false)] [string] $aksSubNetPrefix = "173.0.0.0/22",
+        [Parameter(Mandatory=$false)] [string] $appgwSubnetName = "aks-workshop-appgw-subnet",
+        [Parameter(Mandatory=$false)] [string] $appgwSubnetPrefix = "173.0.4.0/27",
+        [Parameter(Mandatory=$false)] [string] $vrnSubnetName = "vrn-workshop-subnet",
+        [Parameter(Mandatory=$false)] [string] $vrnSubnetPrefix = "173.0.5.0/24",
+        [Parameter(Mandatory=$false)] [string] $appgwName = "aks-workshop-appgw",
+        [Parameter(Mandatory=$false)] [string] $networkTemplateFileName = "aksauto-network-deploy",
+        [Parameter(Mandatory=$false)] [string] $acrTemplateFileName = "aksauto-acr-deploy",
+        [Parameter(Mandatory=$false)] [string] $kvTemplateFileName = "aksauto-keyvault-deploy",
+        [Parameter(Mandatory=$false)] [string] $pepConfigFileName = "aksauto-pep-config",
+        [Parameter(Mandatory=$false)] [string] $pepTemplateFileName = "aksauto-pep-deploy",
+        [Parameter(Mandatory=$false)] [string] $acrPvtLinkFileName = "aksauto-acr-plink-config",
+        [Parameter(Mandatory=$false)] [string] $kvPvtLinkFileName = "aksauto-kv-plink-config",
+        [Parameter(Mandatory=$false)] [string] $subscriptionId = "6bdcc705-8db6-4029-953a-e749070e6db6",
+        [Parameter(Mandatory=$false)] [string] $objectId = "890c52c5-d318-4185-a548-e07827190ff6",
+        [Parameter(Mandatory=$false)] [string] $baseFolderPath = "/Users/monojitd/Materials/Projects/AKSProjects/AKSWorkshop/AKSAutomate/Deployments")
 
 $vnetRole = "Network Contributor"
 $aksSPIdName = $clusterName + "-sp-id"
@@ -36,39 +33,50 @@ $aksSPSecretName = $clusterName + "-sp-secret"
 $acrSPIdName = $acrName + "-sp-id"
 $acrSPSecretName = $acrName + "-sp-secret"
 $certSecretName = $appgwName + "-cert-secret"
-$acrPEPName = $projectName + "-acr-pep"
-$acrPEPConnectionName = $projectName + "-acr-pep-conn"
-$acrPEPResourceType = "Microsoft.ContainerRegistry/registries"
-$acrPEPSubResourceId = "registry"
-$kvPEPName = $projectName + "-kv-pep"
-$kvPEPConnectionName = $projectName + "-kv-pep-conn"
-$kvPEPResourceType = "Microsoft.KeyVault/vaults"
-$kvPEPSubResourceId = "vault"
-$dvoToSecPeerName = $projectName + "-devops-security-peer"
-$secToDvoPeerName = $projectName + "-security-devops-peer"
+
+$acrAKSPepName = $projectName + "acr-aks-pep"
+$acrAKSPepConnectionName = $acrAKSPepName + "-conn"
+$acrDevOpsPepName = $projectName + "acr-devops-pep"
+$acrDevOpsPepConnectionName = $acrDevOpsPepName + "-conn"
+$acrPepResourceType = "Microsoft.ContainerRegistry/registries"
+$acrPepSubResourceId = "registry"
+$kvDevOpsPepName = $projectName + "kv-devops-pep"
+$kvDevOpsPepConnectionName = $kvDevOpsPepName + "-conn"
+$kvPepResourceType = "Microsoft.KeyVault/vaults"
+$kvPepSubResourceId = "vault"
+$acrAKSVnetLinkName = $acrAKSPepName + "-link"
+$acrDevOpsVnetLinkName = $acrDevOpsPepName + "-link"
+$kvDevOpsVnetLinkName = $kvDevOpsPepName + "-link"
+
 $templatesFolderPath = $baseFolderPath + "/Templates/DEV"
+$setupFolderPath = $baseFolderPath + "/Setup/DEV"
 $certPFXFilePath = $baseFolderPath + "/Certs/aksauto.pfx"
 
 # Assuming Logged In
 
-# GET ObjectID
-$loggedInUser = Get-AzADUser -UserPrincipalName $userEmail
-$objectId = $loggedInUser.Id
-
 $networkNames = "-aksVNetName $aksVNetName -aksVNetPrefix $aksVNetPrefix -aksSubnetName $aksSubnetName -aksSubNetPrefix $aksSubNetPrefix -appgwSubnetName $appgwSubnetName -appgwSubnetPrefix $appgwSubnetPrefix -vrnSubnetName $vrnSubnetName -vrnSubnetPrefix $vrnSubnetPrefix"
 $networkDeployCommand = "/Network/$networkTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $networkTemplateFileName $networkNames"
 
-$securityNetworkNames = "-secVNetName $secVNetName -secVNetPrefix $secVNetPrefix -acrSubnetName $acrSubnetName -acrSubNetPrefix $acrSubNetPrefix -kvSubnetName $kvSubnetName -kvSubnetPrefix $kvSubnetPrefix"
-$securityNetworkDeployCommand = "/Network/$securityNetworkTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $securityNetworkTemplateFileName $securityNetworkNames"
+$acrDeployCommand = "/ACR/$acrTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $acrTemplateFileName -acrName $acrName"
+$keyVaultDeployCommand = "/KeyVault/$kvTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $kvTemplateFileName -keyVaultName $keyVaultName -objectId $objectId"
 
-$acrDeployCommand = "/ACR/$acrTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $acrTemplateFileName -acrName $acrName -vnetName $secVNetName -subnetName $acrSubnetName"
-$keyVaultDeployCommand = "/KeyVault/$kvTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $kvTemplateFileName -keyVaultName $keyVaultName -vnetName $secVNetName -subnetName $kvSubnetName -objectId $objectId"
+$acrAKSPepNames = "-pepName $acrAKSPepName -pepConnectionName $acrAKSPepConnectionName -pepResourceType $acrPepResourceType -pepResourceName $acrName -pepTemplateFileName $pepTemplateFileName -pepSubResourceId $acrPepSubResourceId"
+$acrAKSPepDeployCommand = "/Security/$pepConfigFileName.ps1 -resourceGroup $resourceGroup -vnetResourceGroup $resourceGroup -vnetName $aksVNetName -subnetName $aksSubnetName -baseFolderPath $baseFolderPath $acrAKSPepNames"
 
-$acrPEPNames = "-privateEndpointName $acrPEPName -privateEndpointConnectionName $acrPEPConnectionName -pepResourceType $acrPEPResourceType -pepResourceName $acrName -subResourceId $acrPEPSubResourceId"
-$acrPEPDeployCommand = "/Network/$pepTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $pepTemplateFileName -vnetName $secVNetName -subnetName $acrSubnetName $acrPEPNames"
+$acrAKSPvtLinkNames = "-pepName $acrAKSPepName -pepResourceName $acrName -vnetLinkName $acrAKSVnetLinkName"
+$acrAKSPvtLinkDeployCommand = "/Security/$acrPvtLinkFileName.ps1 -resourceGroup $resourceGroup -vnetResourceGroup $resourceGroup -location $location -vnetName $aksVNetName $acrAKSPvtLinkNames"
 
-$kvPEPNames = "-privateEndpointName $kvPEPName -privateEndpointConnectionName $kvPEPConnectionName -pepResourceType $kvPEPResourceType -pepResourceName $keyVaultName -subResourceId $kvPEPSubResourceId"
-$kvPEPDeployCommand = "/Network/$pepTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $pepTemplateFileName -vnetName $secVNetName -subnetName $kvSubnetName $kvPEPNames"
+$acrDevOpsPepNames = "-pepName $acrDevOpsPepName -pepConnectionName $acrDevOpsPepConnectionName -pepResourceType $acrPepResourceType -pepResourceName $acrName -pepTemplateFileName $pepTemplateFileName -pepSubResourceId $acrPepSubResourceId"
+$acrDevOpsPepDeployCommand = "/Security/$pepConfigFileName.ps1 -resourceGroup $resourceGroup -vnetResourceGroup $dvoResourceGroup -vnetName $dvoVNetName -subnetName $dvoSubetName -baseFolderPath $baseFolderPath $acrDevOpsPepNames"
+
+$acrDevOpsPvtLinkNames = "-pepName $acrDevOpsPepName -pepResourceName $acrName -vnetLinkName $acrDevOpsVnetLinkName"
+$acrDevOpsPvtLinkDeployCommand = "/Security/$acrPvtLinkFileName.ps1 -resourceGroup $resourceGroup -vnetResourceGroup $dvoResourceGroup -location $location -vnetName $dvoVNetName $acrDevOpsPvtLinkNames"
+
+$kvDevOpsPepNames = "-pepName $kvDevOpsPepName -pepConnectionName $kvDevOpsPepConnectionName -pepResourceType $kvPepResourceType -pepResourceName $keyVaultName -pepTemplateFileName $pepTemplateFileName -pepSubResourceId $kvPepSubResourceId"
+$kvDevOpsPepDeployCommand = "/Security/$pepConfigFileName.ps1 -resourceGroup $resourceGroup -vnetResourceGroup $dvoResourceGroup -vnetName $dvoVNetName -subnetName $dvoSubetName -baseFolderPath $baseFolderPath $kvDevOpsPepNames"
+
+$kvDevOpsPvtLinkNames = "-pepName $kvDevOpsPepName -pepResourceName $keyVaultName -vnetLinkName $kvDevOpsVnetLinkName"
+$kvDevOpsPvtLinkDeployCommand = "/Security/$kvPvtLinkFileName.ps1 -resourceGroup $resourceGroup -vnetResourceGroup $dvoResourceGroup -location $location -vnetName $dvoVNetName $kvDevOpsPvtLinkNames"
 
 # PS Select Subscriotion 
 Select-AzSubscription -SubscriptionId $subscriptionId
@@ -119,35 +127,11 @@ Write-Host $acrSP.ApplicationId
 $networkDeployPath = $templatesFolderPath + $networkDeployCommand
 Invoke-Expression -Command $networkDeployPath
 
-$securityNetworkDeployPath = $templatesFolderPath + $securityNetworkDeployCommand
-Invoke-Expression -Command $securityNetworkDeployPath
-
-$secVnet = Get-AzVirtualNetwork -Name $secVNetName -ResourceGroupName $resourceGroup
-$dvoVnet = Get-AzVirtualNetwork -Name $dvoVNetName -ResourceGroupName $dvoResourceGroup
-if ($secVnet && $dvoVnet)
-{
-
-    Add-AzVirtualNetworkPeering -Name $dvoToSecPeerName `
-    -VirtualNetwork $dvoVnet `
-    -RemoteVirtualNetworkId $secVnet.Id
-
-    Add-AzVirtualNetworkPeering -Name $secToDvoPeerName `
-    -VirtualNetwork $secVnet `
-    -RemoteVirtualNetworkId $dvoVnet.Id
-
-}
-
 $acrDeployPath = $templatesFolderPath + $acrDeployCommand
 Invoke-Expression -Command $acrDeployPath
 
 $keyVaultDeployPath = $templatesFolderPath + $keyVaultDeployCommand
 Invoke-Expression -Command $keyVaultDeployPath
-
-$acrPEPDeployPath = $templatesFolderPath + $acrPEPDeployCommand
-Invoke-Expression -Command $acrPEPDeployPath
-
-$kvPEPDeployPath = $templatesFolderPath + $kvPEPDeployCommand
-Invoke-Expression -Command $kvPEPDeployPath
 
 Write-Host $certPFXFilePath
 $certBytes = [System.IO.File]::ReadAllBytes($certPFXFilePath)
@@ -194,4 +178,22 @@ if ($acrInfo)
 
 }
 
-Write-Host "Pre-Config Successfully Done!"
+$acrAKSPepDeployPath = $setupFolderPath + $acrAKSPepDeployCommand
+Invoke-Expression -Command $acrAKSPepDeployPath
+
+$acrAKSPvtLinkDeployPath = $setupFolderPath + $acrAKSPvtLinkDeployCommand
+Invoke-Expression -Command $acrAKSPvtLinkDeployPath
+
+$acrDevOpsPepDeployPath = $setupFolderPath + $acrDevOpsPepDeployCommand
+Invoke-Expression -Command $acrDevOpsPepDeployPath
+
+$acrDevOpsPvtLinkDeployPath = $setupFolderPath + $acrDevOpsPvtLinkDeployCommand
+Invoke-Expression -Command $acrDevOpsPvtLinkDeployPath
+
+$kvDevOpsPepDeployPath = $setupFolderPath + $kvDevOpsPepDeployCommand
+Invoke-Expression -Command $kvDevOpsPepDeployPath
+
+$kvDevOpsPvtLinkDeployPath = $setupFolderPath + $kvDevOpsPvtLinkDeployCommand
+Invoke-Expression -Command $kvDevOpsPvtLinkDeployPath
+
+Write-Host "------Pre-Config------"

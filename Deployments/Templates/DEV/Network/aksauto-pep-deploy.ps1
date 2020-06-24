@@ -1,4 +1,5 @@
 param([Parameter(Mandatory=$true)] [string] $rg,
+        [Parameter(Mandatory=$true)] [string] $vnetRG,
         [Parameter(Mandatory=$true)] [string] $fpath,
         [Parameter(Mandatory=$true)] [string] $deployFileName,
         [Parameter(Mandatory=$true)] [string] $privateEndpointName,
@@ -11,6 +12,7 @@ param([Parameter(Mandatory=$true)] [string] $rg,
 
 Test-AzResourceGroupDeployment -ResourceGroupName $rg `
 -TemplateFile "$fpath/Network/$deployFileName.json" `
+-vnetRG $vnetRG `
 -privateEndpointName $privateEndpointName `
 -privateEndpointConnectionName $privateEndpointConnectionName `
 -pepResourceType $pepResourceType `
@@ -20,6 +22,7 @@ Test-AzResourceGroupDeployment -ResourceGroupName $rg `
 
 New-AzResourceGroupDeployment -ResourceGroupName $rg `
 -TemplateFile "$fpath/Network/$deployFileName.json" `
+-vnetRG $vnetRG `
 -privateEndpointName $privateEndpointName `
 -privateEndpointConnectionName $privateEndpointConnectionName `
 -pepResourceType $pepResourceType `
