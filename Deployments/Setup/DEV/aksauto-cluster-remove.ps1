@@ -34,6 +34,22 @@ Remove-AzApplicationGateway -Name $appgwName `
 Remove-AzPublicIpAddress -Name $publicIpAddressName `
 -ResourceGroupName $resourceGroup -Force
 
+$keyVault = Get-AzKeyVault -ResourceGroupName $resourceGroup `
+-VaultName $keyVaultName
+if ($keyVault)
+{
+
+    $spAppId = Get-AzKeyVaultSecret -VaultName $keyVaultName `
+    -Name $aksSPIdName
+    if ($spAppId)
+    {
+     
+        Remove-AzADServicePrincipal `
+        -ApplicationId $spAppId.SecretValueText -Force
+        
+    }
+}
+
 Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
 -Name $acrAKSPepName -Force
 
@@ -78,23 +94,7 @@ Remove-AzVirtualNetwork -Name $aksVNetName `
 Remove-AzContainerRegistry -Name $acrName `
 -ResourceGroupName $resourceGroup
 
-$keyVault = Get-AzKeyVault -ResourceGroupName $resourceGroup `
--VaultName $keyVaultName
-if ($keyVault)
-{
+Remove-AzKeyVault  -VaultName $keyVaultName `
+-ResourceGroupName $resourceGroup -Force
 
-    $spAppId = Get-AzKeyVaultSecret -VaultName $keyVaultName `
-    -Name $aksSPIdName
-    if ($spAppId)
-    {
-     
-        Remove-AzADServicePrincipal `
-        -ApplicationId $spAppId.SecretValueText -Force
-        
-    }
-
-    Remove-AzKeyVault -InputObject $keyVault -Force
-
-}
-
-Write-Host "Successfully Removed!"
+Write-Host "Remove operation completed"

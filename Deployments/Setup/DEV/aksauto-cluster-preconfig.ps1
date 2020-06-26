@@ -25,7 +25,7 @@ param([Parameter(Mandatory=$false)] [string] $resourceGroup = "aks-workshop-rg",
         [Parameter(Mandatory=$false)] [string] $kvPvtLinkFileName = "aksauto-kv-plink-config",
         [Parameter(Mandatory=$false)] [string] $subscriptionId = "6bdcc705-8db6-4029-953a-e749070e6db6",
         [Parameter(Mandatory=$false)] [string] $objectId = "890c52c5-d318-4185-a548-e07827190ff6",
-        [Parameter(Mandatory=$false)] [string] $baseFolderPath = "/Users/monojitd/Materials/Projects/AKSProjects/AKSWorkshop/AKSAutomate/Deployments")
+        [Parameter(Mandatory=$false)] [string] $baseFolderPath = "/home/devops-vm-ubuntu1804/Deployments") # on devops machine
 
 $vnetRole = "Network Contributor"
 $aksSPIdName = $clusterName + "-sp-id"
@@ -77,6 +77,9 @@ $kvDevOpsPepDeployCommand = "/Security/$pepConfigFileName.ps1 -resourceGroup $re
 
 $kvDevOpsPvtLinkNames = "-pepName $kvDevOpsPepName -pepResourceName $keyVaultName -vnetLinkName $kvDevOpsVnetLinkName"
 $kvDevOpsPvtLinkDeployCommand = "/Security/$kvPvtLinkFileName.ps1 -resourceGroup $resourceGroup -vnetResourceGroup $dvoResourceGroup -location $location -vnetName $dvoVNetName $kvDevOpsPvtLinkNames"
+
+$acrUpdateNwRulesCommand = "az acr update --public-network-enabled false --name $acrName --resource-group $resourceGroup"
+$kvUpdateNwRulesCommand = "Update-AzKeyVaultNetworkRuleSet -DefaultAction Deny -ResourceGroupName $resourceGroup -VaultName $keyVaultName"
 
 # PS Select Subscriotion 
 Select-AzSubscription -SubscriptionId $subscriptionId
@@ -178,6 +181,7 @@ if ($acrInfo)
 
 }
 
+Invoke-Expression -Command $acrUpdateNwRulesCommand
 $acrAKSPepDeployPath = $setupFolderPath + $acrAKSPepDeployCommand
 Invoke-Expression -Command $acrAKSPepDeployPath
 
@@ -190,6 +194,7 @@ Invoke-Expression -Command $acrDevOpsPepDeployPath
 $acrDevOpsPvtLinkDeployPath = $setupFolderPath + $acrDevOpsPvtLinkDeployCommand
 Invoke-Expression -Command $acrDevOpsPvtLinkDeployPath
 
+Invoke-Expression -Command $kvUpdateNwRulesCommand
 $kvDevOpsPepDeployPath = $setupFolderPath + $kvDevOpsPepDeployCommand
 Invoke-Expression -Command $kvDevOpsPepDeployPath
 

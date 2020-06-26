@@ -1,28 +1,29 @@
 param([Parameter(Mandatory=$true)] [string] $mode,
-        [Parameter(Mandatory=$false)] [string] $resourceGroup,
-        [Parameter(Mandatory=$false)] [string] $location,
-        [Parameter(Mandatory=$false)] [string] $clusterName,
-        [Parameter(Mandatory=$false)] [string] $keyVaultName,
-        [Parameter(Mandatory=$false)] [string] $aksVNetName,
-        [Parameter(Mandatory=$false)] [string] $aksSubnetName,
-        [Parameter(Mandatory=$false)] [string] $vrnSubnetName,
-        [Parameter(Mandatory=$false)] [string] $version,
-        [Parameter(Mandatory=$false)] [string] $addons,
-        [Parameter(Mandatory=$false)] [string] $nodeCount,
-        [Parameter(Mandatory=$false)] [string] $minNodeCount,
-        [Parameter(Mandatory=$false)] [string] $maxNodeCount,
-        [Parameter(Mandatory=$false)] [string] $maxPods,
-        [Parameter(Mandatory=$false)] [string] $vmSetType,
-        [Parameter(Mandatory=$false)] [string] $nodeVMSize,
-        [Parameter(Mandatory=$false)] [string] $networkPlugin,
-        [Parameter(Mandatory=$false)] [string] $networkPolicy,
-        [Parameter(Mandatory=$false)] [string] $nodePoolName,
-        [Parameter(Mandatory=$false)] [string] $winNodeUserName,
-        [Parameter(Mandatory=$false)] [string] $winNodePassword,
-        [Parameter(Mandatory=$false)] [string] $aadServerAppID,
-        [Parameter(Mandatory=$false)] [string] $aadServerAppSecret,
-        [Parameter(Mandatory=$false)] [string] $aadClientAppID,
-        [Parameter(Mandatory=$false)] [string] $aadTenantID)
+        [Parameter(Mandatory=$false)] [string] $resourceGroup = "aks-workshop-rg",
+        [Parameter(Mandatory=$false)] [string] $location = "eastus",
+        [Parameter(Mandatory=$false)] [string] $clusterName = "aks-workshop-cluster",
+        [Parameter(Mandatory=$false)] [string] $keyVaultName = "aks-workshop-kv",
+        [Parameter(Mandatory=$false)] [string] $aksVNetName = "aks-workshop-vnet",
+        [Parameter(Mandatory=$false)] [string] $aksSubnetName = "aks-workshop-subnet",
+        [Parameter(Mandatory=$false)] [string] $vrnSubnetName = "vrn-workshop-subnet",
+        [Parameter(Mandatory=$false)] [string] $version = "1.16.8",
+        [Parameter(Mandatory=$false)] [string] $addons = "monitoring",
+        [Parameter(Mandatory=$false)] [string] $nodeCount = 3,
+        [Parameter(Mandatory=$false)] [string] $minNodeCount = $nodeCount,
+        [Parameter(Mandatory=$false)] [string] $maxNodeCount = 20,
+        [Parameter(Mandatory=$false)] [string] $maxPods = 40,
+        [Parameter(Mandatory=$false)] [string] $vmSetType = "VirtualMachineScaleSets",
+        [Parameter(Mandatory=$false)] [string] $nodeVMSize = "Standard_DS3_V2",
+        [Parameter(Mandatory=$false)] [string] $networkPlugin= "azure",
+        [Parameter(Mandatory=$false)] [string] $networkPolicy = "azure",
+        [Parameter(Mandatory=$false)] [string] $nodePoolName = "akslnxpool",
+        [Parameter(Mandatory=$false)] [string] $winNodeUserName = "azureuser",
+        [Parameter(Mandatory=$false)] [string] $winNodePassword = "PassW0rd@123",
+        [Parameter(Mandatory=$false)] [string] $apiServerAuthIP = "52.255.147.91",
+        [Parameter(Mandatory=$false)] [string] $aadServerAppID = "3adf37ca-d914-43e9-9b24-8c081e0b3a08",
+        [Parameter(Mandatory=$false)] [string] $aadServerAppSecret = "_1hB64xeES67r4.OKDbZdKV-Jewj4~ZAvs",
+        [Parameter(Mandatory=$false)] [string] $aadClientAppID = "70dba699-0fba-4c1d-805e-213acea0a63e",
+        [Parameter(Mandatory=$false)] [string] $aadTenantID = "3851f269-b22b-4de6-97d6-aa9fe60fe301")
 
 
 $aksSPIdName = $clusterName + "-sp-id"
@@ -98,6 +99,7 @@ if ($mode -eq "create")
     --aad-server-app-id $aadServerAppID `
     --aad-server-app-secret $aadServerAppSecret `
     --aad-tenant-id $aadTenantID `
+    --api-server-authorized-ip-ranges $apiServerAuthIP `
     --query $configSuccessCommand
 
     Write-Host "Result - $result"
