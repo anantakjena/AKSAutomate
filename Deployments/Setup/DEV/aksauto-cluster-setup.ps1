@@ -156,5 +156,5 @@ elseif ($mode -eq "scale")
     
 }
 
-Write-Host "Cluster Setup Successfully Done!"
+Write-Host "-----------Setup------------"
 

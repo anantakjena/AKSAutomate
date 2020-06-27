@@ -97,4 +97,4 @@ Remove-AzContainerRegistry -Name $acrName `
 Remove-AzKeyVault  -VaultName $keyVaultName `
 -ResourceGroupName $resourceGroup -Force
 
-Write-Host "Remove operation completed"
+Write-Host "-----------Remove------------"
