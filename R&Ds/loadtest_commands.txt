@@ -13,9 +13,9 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm search repo bitnami
 helm install orders-mongo bitnami/mongodb --set mongodbUsername=orders-user,mongodbPassword=orders-password,mongodbDatabase=akschallenge
 
-k create secret docker-registry aks-workshop-secret --docker-server=akswkshpacr.azurecr.io --docker-username=f0254445-c5a6-4562-9698-6b73f95e3cbb --docker-password=f67c5035-f2ba-4aac-8294-6cf20031f7e4 -n aks-workshop-dev
+k create secret docker-registry aks-workshop-secret --docker-server=akswkshpacr.azurecr.io --docker-username=d02c0b0c-11ae-4289-95e8-4b5410340ab7 --docker-password=09dbef2e-1035-4f17-af27-cba30d4234d4 -n aks-workshop-dev
 k create secret generic aks-workshop-mongo-secret --from-literal=mongohost=orders-mongo-mongodb.default.svc.cluster.local --from-literal=mongouser=orders-user --from-literal=mongopassword=orders-password -n aks-workshop-dev
-docker login akswkshpacr.azurecr.io -u f0254445-c5a6-4562-9698-6b73f95e3cbb -p f67c5035-f2ba-4aac-8294-6cf20031f7e4
+docker login akswkshpacr.azurecr.io -u 8e023190-5486-4c68-ad5d-178067c53031 -p 48e5dbf3-823e-412a-88c3-edd86ad9e3ea
 
 curl  http://52.224.18.69/v1/order
 curl -d '{"EmailAddress": "email@domain.com", "Product": "prod-1", "Total": 100}' -H "Content-Type: application/json" -X POST http://52.224.18.69/v1/order/
@@ -32,30 +32,55 @@ helm install grafana stable/grafana
 
 
 // ububtu agent
- ssh devops-vm-ub1804@13.82.57.99
+ ssh devops-vm-ub1804@52.255.147.91
 
 // Ubuntu Self hosted agent config
-https://vstsagentpackage.azureedge.net/agent/2.166.3/vsts-agent-linux-x64-2.166.3.tar.gz
 curl https://vstsagentpackage.azureedge.net/agent/2.166.3/vsts-agent-linux-x64-2.166.3.tar.gz --output vsts-agent-linux-x64-2.166.3.tar.gz
 tar -xvf vsts-agent-linux-x64-2.166.3.tar.gz -C ../devops-agent/
 
 // PAT
-5jilv4sb5gl4ht3exkb3xsc4v7wmmzdynbjc7vvlg66uj6on5fha
+dn6ui3sqmr6larlf3f7adslholheoatpfa2jnnxktffe5oo5ddxa - linux
+ss7ogpwwoigy7w2n2dmiwlr5cxelzomtwsjntolupstct5ursqiq - Windows
 
 https://dev.azure.com/modatta
 
-// docker 
+// docker - Linux
 sudo snap install docker
 
-// Powwershell - linux
+// docker - Mac
+brew install powershell
+
+// docker - Windows
+https://docs.docker.com/docker-for-windows/install/
+
+// Powershell - linux
 https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7
+OR,
+sudo snap install powershell --classic
+OR,
+sudo apt-get install -y powershell
+
+// Install Az Module
+Install-Module -Name Az -AllowClobber
 
 // Powershell - mac
 brew install powershell
 
-// azure-cli
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-Install-Module -Name Az -AllowClobber
+// Powershell - Windows
+https://github.com/PowerShell/PowerShell/releases
+
+// azure-cli - Windows
+https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-windows?view=azure-cli-latest&tabs=azure-cli
+
+// azure-cli - Mac
+brew update && brew install azure-cli
+
+// azure-cli - Linux
+https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest
+
+// Chcolatey - Windows
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+
 
 // kubectl
 sudo apt-get update && sudo apt-get install -y apt-transport-https gnupg2
@@ -64,8 +89,18 @@ echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/
 sudo apt-get update
 sudo apt-get install -y kubectl
 
-// helm
-sudo snap install helm (brew for mac)
+// helm - Mac
+brew install helm
+
+// helm - Linux
+sudo snap install helm
+OR,
+sudo apt-get install helm
+
+// helm - windows
+choco install kubernetes-helm
+
+// Add Repo (must))
 helm repo add stable https://kubernetes-charts.storage.googleapis.com/
 
 // .NetCore
@@ -77,6 +112,9 @@ sudo apt-get install apt-transport-https
 sudo apt-get update
 sudo apt-get install dotnet-sdk-3.1
 
+// windows nodepool
+azureuser
+PassW0rd@123
 
 // AGIC
 kubectl create -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml
