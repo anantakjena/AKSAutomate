@@ -1,4 +1,4 @@
-param([Parameter(Mandatory=$true)] [string] $mode,
+param([Parameter(Mandatory=$true)]    [string] $mode,
         [Parameter(Mandatory=$false)] [string] $resourceGroup,
         [Parameter(Mandatory=$false)] [string] $location,
         [Parameter(Mandatory=$false)] [string] $clusterName,        

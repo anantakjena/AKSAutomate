@@ -1,4 +1,4 @@
-param([Parameter(Mandatory=$true)] [string] $mode,
+param([Parameter(Mandatory=$true)]    [string] $mode,
         [Parameter(Mandatory=$false)] [string] $resourceGroup = "aks-workshop-rg",
         [Parameter(Mandatory=$false)] [string] $location = "eastus",
         [Parameter(Mandatory=$false)] [string] $clusterName = "aks-workshop-cluster",

@@ -1,4 +1,4 @@
-param([Parameter(Mandatory=$false)] [string] $resourceGroup = "aks-workshop-rg",
+param([Parameter(Mandatory=$false)]   [string] $resourceGroup = "aks-workshop-rg",
         [Parameter(Mandatory=$false)] [string] $dvoResourceGroup = "devops-workshop-rg",
         [Parameter(Mandatory=$false)] [string] $projectName = "aks-workshop",
         [Parameter(Mandatory=$false)] [string] $location = "eastus",

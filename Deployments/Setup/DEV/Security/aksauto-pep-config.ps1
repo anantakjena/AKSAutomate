@@ -1,4 +1,4 @@
-param([Parameter(Mandatory=$true)] [string] $resourceGroup,
+param([Parameter(Mandatory=$true)]   [string] $resourceGroup,
         [Parameter(Mandatory=$true)] [string] $vnetResourceGroup,
         [Parameter(Mandatory=$true)] [string] $vnetName,
         [Parameter(Mandatory=$true)] [string] $subnetName,
