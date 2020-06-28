@@ -7,7 +7,7 @@ $aksUpdateCommand = "az aks update -g $resourceGroup -n $clusterName --api-serve
 
 if ($shouldEnable -eq $false)
 {
-    $aksUpdateCommand = $aksUpdateCommand -join ""
+    $aksUpdateCommand = $aksUpdateCommand -join "''"
 }
 else
 {
