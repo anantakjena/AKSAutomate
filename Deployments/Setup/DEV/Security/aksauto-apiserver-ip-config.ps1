@@ -4,10 +4,11 @@ param([Parameter(Mandatory=$true)] [string] $resourceGroup,
       [Parameter(Mandatory=$true)] [array]  $ipAddressList)
 
 $aksUpdateCommand = "az aks update -g $resourceGroup -n $clusterName --api-server-authorized-ip-ranges "
+$ipAddressString = '""'
 
 if ($shouldEnable -eq $false)
 {
-    $aksUpdateCommand = $aksUpdateCommand -join "''"
+    $aksUpdateCommand = $aksUpdateCommand + $ipAddressString
 }
 else
 {
@@ -17,4 +18,5 @@ else
 
 }
 
+Write-Host $aksUpdateCommand
 Invoke-Expression -Command $aksUpdateCommand
