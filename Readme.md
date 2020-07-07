@@ -6,9 +6,17 @@
 
 
 
+
+
+
+
 ## Automate Deployment
 
 ![](./Assets/AKS-Ref-Achitecture-Deployment.png)
+
+
+
+
 
 
 
@@ -18,9 +26,17 @@
 
 
 
+
+
+
+
 ## Role Bindings
 
 ![](./Assets/AKS-Components-RoleBindings.png)
+
+
+
+
 
 
 
@@ -32,9 +48,17 @@
 
 
 
+
+
+
+
 ## Network Policy
 
 ![](./Assets/AKS-Components-NP.png)
+
+
+
+
 
 
 
