@@ -32,7 +32,7 @@ helm install grafana stable/grafana
 
 
 // ububtu agent
- ssh devops-vm-ub1804@52.255.147.91
+ ssh devops-vm-ubuntu1804@52.255.147.91
 
 // Ubuntu Self hosted agent config
 curl https://vstsagentpackage.azureedge.net/agent/2.166.3/vsts-agent-linux-x64-2.166.3.tar.gz --output vsts-agent-linux-x64-2.166.3.tar.gz

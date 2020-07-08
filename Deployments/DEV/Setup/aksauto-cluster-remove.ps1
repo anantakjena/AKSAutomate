@@ -50,51 +50,51 @@ if ($keyVault)
     }
 }
 
-Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
--Name $acrAKSPepName -Force
+# Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
+# -Name $acrAKSPepName -Force
 
-Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
--Name $acrDevOpsPepName -Force
+# Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
+# -Name $acrDevOpsPepName -Force
 
-Remove-AzPrivateDnsVirtualNetworkLink `
--ResourceGroupName $resourceGroup -ZoneName $acrPrivateDnsZone `
--Name $acrAKSVnetLinkName
+# Remove-AzPrivateDnsVirtualNetworkLink `
+# -ResourceGroupName $resourceGroup -ZoneName $acrPrivateDnsZone `
+# -Name $acrAKSVnetLinkName
 
-Remove-AzPrivateDnsVirtualNetworkLink `
--ResourceGroupName $resourceGroup -ZoneName $acrPrivateDnsZone `
--Name $acrDevOpsVnetLinkName
+# Remove-AzPrivateDnsVirtualNetworkLink `
+# -ResourceGroupName $resourceGroup -ZoneName $acrPrivateDnsZone `
+# -Name $acrDevOpsVnetLinkName
 
-$dnsRecordsList = Get-AzPrivateDnsRecordSet -ResourceGroupName $resourceGroup `
--ZoneName $acrPrivateDnsZone -RecordType "A"
+# $dnsRecordsList = Get-AzPrivateDnsRecordSet -ResourceGroupName $resourceGroup `
+# -ZoneName $acrPrivateDnsZone -RecordType "A"
 
-Remove-AzPrivateDnsRecordSet -RecordSet $dnsRecordsList[0]
-Remove-AzPrivateDnsRecordSet -RecordSet $dnsRecordsList[1]
+# Remove-AzPrivateDnsRecordSet -RecordSet $dnsRecordsList[0]
+# Remove-AzPrivateDnsRecordSet -RecordSet $dnsRecordsList[1]
 
-Remove-AzPrivateDnsZone -ResourceGroupName $resourceGroup `
--Name $acrPrivateDnsZone
+# Remove-AzPrivateDnsZone -ResourceGroupName $resourceGroup `
+# -Name $acrPrivateDnsZone
 
-Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
--Name $kvDevOpsPepName -Force
+# Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
+# -Name $kvDevOpsPepName -Force
 
-Remove-AzPrivateDnsVirtualNetworkLink `
--ResourceGroupName $resourceGroup -ZoneName $kvPrivateDnsZone `
--Name $kvDevOpsVnetLinkName
+# Remove-AzPrivateDnsVirtualNetworkLink `
+# -ResourceGroupName $resourceGroup -ZoneName $kvPrivateDnsZone `
+# -Name $kvDevOpsVnetLinkName
 
-$dnsRecord = Get-AzPrivateDnsRecordSet -ResourceGroupName $resourceGroup `
--ZoneName $kvPrivateDnsZone -RecordType "A"
+# $dnsRecord = Get-AzPrivateDnsRecordSet -ResourceGroupName $resourceGroup `
+# -ZoneName $kvPrivateDnsZone -RecordType "A"
 
-Remove-AzPrivateDnsRecordSet -RecordSet $dnsRecord
+# Remove-AzPrivateDnsRecordSet -RecordSet $dnsRecord
 
-Remove-AzPrivateDnsZone -ResourceGroupName $resourceGroup `
--Name $kvPrivateDnsZone
+# Remove-AzPrivateDnsZone -ResourceGroupName $resourceGroup `
+# -Name $kvPrivateDnsZone
 
-Remove-AzVirtualNetwork -Name $aksVNetName `
--ResourceGroupName $resourceGroup -Force
+# Remove-AzVirtualNetwork -Name $aksVNetName `
+# -ResourceGroupName $resourceGroup -Force
 
-Remove-AzContainerRegistry -Name $acrName `
--ResourceGroupName $resourceGroup
+# Remove-AzContainerRegistry -Name $acrName `
+# -ResourceGroupName $resourceGroup
 
-Remove-AzKeyVault  -VaultName $keyVaultName `
--ResourceGroupName $resourceGroup -Force
+# Remove-AzKeyVault  -VaultName $keyVaultName `
+# -ResourceGroupName $resourceGroup -Force
 
 Write-Host "-----------Remove------------"

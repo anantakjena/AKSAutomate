@@ -98,8 +98,9 @@ if ($mode -eq "create")
     --aad-server-app-id $aadServerAppID `
     --aad-server-app-secret $aadServerAppSecret `
     --aad-tenant-id $aadTenantID `
-    --api-server-authorized-ip-ranges $apiServerAuthIP `
     --query $configSuccessCommand
+
+    # --api-server-authorized-ip-ranges $apiServerAuthIP `
 
     Write-Host "Result - $result"
 
