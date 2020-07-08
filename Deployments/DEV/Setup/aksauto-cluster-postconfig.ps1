@@ -29,6 +29,8 @@ $ingControllerName = $projectName + "-ing"
 $ingControllerNSName = $ingControllerName + "-ns"
 $ingControllerFileName = "internal-ingress"
 
+# Enable these lines if you want Private Endpoint
+
 # $setupFolderPath = $baseFolderPath + "/Setup"
 # $acrAKSPepName = $projectName + "-acr-aks-pep"
 # $acrAKSPepConnectionName = $acrAKSPepName + "-conn"
@@ -138,7 +140,7 @@ $appgwDeployCommand = "/AppGW/$appgwTemplateFileName.ps1 -rg $resourceGroup -fpa
 $appgwDeployPath = $templatesFolderPath + $appgwDeployCommand
 Invoke-Expression -Command $appgwDeployPath
 
-# Enable Private Endpoints
+# Enable these lines if you want Private Endpoint
 
 # Invoke-Expression -Command $acrUpdateNwRulesCommand
 # $acrAKSPepDeployPath = $setupFolderPath + $acrAKSPepDeployCommand
