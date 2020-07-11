@@ -131,10 +131,6 @@ Invoke-Expression -Command $namespaceCommand
 $nginxNSCommand = "kubectl create namespace $ingControllerNSName"
 Invoke-Expression -Command $nginxNSCommand
 
-# ratimgs NS
-$ratingsNSCommand = "kubectl create namespace $ratingsNamespace"
-Invoke-Expression -Command $ratingsNSCommand
-
 # Install nginx as ILB using Helm
 $nginxILBCommand = "helm install $ingControllerName stable/nginx-ingress --namespace $ingControllerNSName -f $yamlFilePath/Common/$ingControllerFileName.yaml --set controller.replicaCount=2 --set nodeSelector.""beta.kubernetes.io/os""=linux"
 Invoke-Expression -Command $nginxILBCommand

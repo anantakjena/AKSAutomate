@@ -14,7 +14,7 @@ spec:
       paths:
       - path: /fe/?(.*)
         backend:
-          serviceName: frontend
+          serviceName: ratingsweb
           servicePort: 80
       - path: /iot/?(.*)
         backend:

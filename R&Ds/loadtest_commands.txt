@@ -14,7 +14,7 @@ helm search repo bitnami
 helm install orders-mongo bitnami/mongodb --set mongodbUsername=orders-user,mongodbPassword=orders-password,mongodbDatabase=akschallenge
 
 k create secret docker-registry aks-workshop-secret --docker-server=akswkshpacr.azurecr.io --docker-username=d02c0b0c-11ae-4289-95e8-4b5410340ab7 --docker-password=09dbef2e-1035-4f17-af27-cba30d4234d4 -n aks-workshop-dev
-k create secret generic aks-workshop-mongo-secret --from-literal=mongohost=orders-mongo-mongodb.default.svc.cluster.local --from-literal=mongouser=orders-user --from-literal=mongopassword=orders-password -n aks-workshop-dev
+k create secret generic aks-workshop-mongo-secret --from-literal=MONGOCONNECTION=mongodb://ratings-mongo:ratings-pwd@ratings-mongodb.ratingsapp:27017/ratingsdb -n aks-workshop-dev
 docker login akswkshpacr.azurecr.io -u 8e023190-5486-4c68-ad5d-178067c53031 -p 48e5dbf3-823e-412a-88c3-edd86ad9e3ea
 
 curl  http://52.224.18.69/v1/order
