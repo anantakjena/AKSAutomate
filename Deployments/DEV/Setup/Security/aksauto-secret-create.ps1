@@ -1,15 +1,45 @@
-param([Parameter(Mandatory=$false)] [string] $dockerSecretName,
-        [Parameter(Mandatory=$false)] [string] $dockerServer,
-        [Parameter(Mandatory=$false)] [string] $dockerUsername,
-        [Parameter(Mandatory=$false)] [string] $dockerPassword,
-        [Parameter(Mandatory=$false)] [string] $mongoSecretName,
-        [Parameter(Mandatory=$false)] [string] $mongohost,
-        [Parameter(Mandatory=$false)] [string] $mongouser,
-        [Parameter(Mandatory=$false)] [string] $mongopassword,
-        [Parameter(Mandatory=$false)] [string] $namespaceName)
+param([Parameter(Mandatory=$true)]    [string] $secretName,
+        [Parameter(Mandatory=$true)]  [array]  $secretKeys,
+        [Parameter(Mandatory=$true)]  [array]  $secretValues,
+        [Parameter(Mandatory=$true)]  [string] $namespaceName,
+        [Parameter(Mandatory=$false)] [bool]   $isDockerSecret = $false)
 
-$dockerSecretCommand = "kubectl create secret docker-registry $dockerSecretName --docker-server=$dockerServer --docker-username=$dockerUsername --docker-password=$dockerPassword -n $namespaceName"
-Invoke-Expression -Command $dockerSecretCommand
+$index = 0
+$secretTokensList = [System.Collections.ArrayList]@()
 
-$mongoSecretCommand = "kubectl create secret generic $mongoSecretName --from-literal=mongohost=$mongohost --from-literal=mongouser=$mongouser --from-literal=mongopassword=$mongopassword -n $namespaceName"
-Invoke-Expression -Command $mongoSecretCommand
+$secretName = "'" + $secretName + "'"
+$secretNameCommand = "kubectl get secrets -n $namespaceName -o=jsonpath=""{.items[?(@.metadata.name==$secretName)].metadata.name}"""
+$existingSecretName = Invoke-Expression -Command $secretNameCommand 
+$existingSecretName = "'" + $existingSecretName + "'"
+
+if ($existingSecretName -eq $secretName)
+{
+    return;
+}
+
+if ($isDockerSecret -eq $true)
+{
+        foreach($key in $secretKeys)
+        {
+                $tokens = "--" + $key + "=" + $secretValues[$index++]
+                $secretTokensList.Add($tokens)
+        }
+
+        $secretTokens = $secretTokensList -join " "
+        $dockerSecretCommand = "kubectl create secret docker-registry $secretName $secretTokens -n $namespaceName"
+        Invoke-Expression -Command $dockerSecretCommand 
+}
+else
+{
+        foreach($key in $secretKeys)
+        {
+                $tokens = "--from-literal=" + $key + "=" + $secretValues[$index++]
+                $secretTokensList.Add($tokens)
+        }
+
+        $secretTokens =  $secretTokensList -join " "
+        $genericSecretCommand = "kubectl create secret generic $secretName $secretTokens -n $namespaceName"
+        Invoke-Expression -Command $genericSecretCommand 
+
+}
+
