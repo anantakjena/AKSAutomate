@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: exch-devuat-pv
+spec:
+  capacity:
+    storage: 3Gi
+  accessModes:
+  - ReadWriteMany
+  azureFile:
+    secretNamespace: exch-devuat-dev
+    secretName: exch-devuat-storage-secret
+    shareName: exch-devuat-elastic-fs
+    readOnly: false    
+  mountOptions:
+  - dir_mode=0777
+  - file_mode=0777
+  - uid=10000
+  - gid=10000
+  
