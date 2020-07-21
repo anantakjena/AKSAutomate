@@ -1,6 +1,6 @@
 # Automating Kubernetes on Azure - AKS and DevOps
 
-### Prelude
+## Prelude
 
 *Azure Kubernetes Service* a.k.a AKS - is a fully managed service that helps to deploy a managed Kubernetes cluster on Azure.
 
@@ -23,7 +23,7 @@ The purpose of this workshop would be to:
 - Integrating with Azure AD and define RBAC for the cluster and its sub-components
 - Secure cluster as well as various ancillary resources using Private Endpoint
 
-###### Pre-requisites, Assumptions
+### Pre-requisites, Assumptions
 
 - A basic knowledge on Containers and MicroServices - *L100*
 - How to build docker image and create containers from it
@@ -33,7 +33,7 @@ The purpose of this workshop would be to:
 
 With this much ammunition, let us get into some action
 
-### Plan
+## Plan
 
 - Review the reference architecture depicting all components
 
@@ -108,7 +108,7 @@ Let us list down all the necessary components to be used as we move along:
 
   
 
-### Action
+## Action
 
 Let us now get into some action with all *Plans* in-place!
 
@@ -152,7 +152,7 @@ DEV denotes the namespace for which below scripts would work; *For other tiers l
 
 
 
-#### Step 1 - PreConfig (Pre-Provisioning)
+### Step 1 - PreConfig (Pre-Provisioning)
 
 ![](./Assets/AKS-3-Step-PreConfig.png)
 
@@ -221,7 +221,7 @@ This is the Pre-Provisioning of the cluster where the corresponding script would
 
 Let us see how the script is designed to achieve this -
 
-##### aksauto-cluster-preconfig.ps1
+#### aksauto-cluster-preconfig.ps1
 
 ```powershell
 param([Parameter(Mandatory=$false)] [string] $resourceGroup = "aks-workshop-rg",        
@@ -369,7 +369,7 @@ Write-Host "------Pre-Config------"
 
 
 
-#### Step 2 - Setup Cluster (Provisioning)
+### Step 2 - Setup Cluster (Provisioning)
 
 ![](./Assets/AKS-3-Step-Setup.png)
 
@@ -552,7 +552,7 @@ Write-Host "-----------Setup------------"
 
 
 
-#### Step 3 - PostConfig (Post-Provisioning)
+### Step 3 - PostConfig (Post-Provisioning)
 
 ![](./Assets/AKS-3-Step-PostConfig.png)
 
