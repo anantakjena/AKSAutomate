@@ -385,19 +385,10 @@ Write-Host "------Pre-Config------"
 The is step is fairly straight forward -
 
 - Get ACR reference using PowerShell cmdlet, which was created in the *PreConfig* step
-
 - Get KeyVault reference using PowerShell cmdlet, which was created in the *PreConfig* step - primarily to read the Service Principal values with Network Contributor role which should be assigned to the Cluster
-
 - Get Network reference created in previous *PreConfig* step
-
 - Azure AD integration - this is done so that all RBAC can be performed on the cluster later on...Azure AD being first class service on Azure for Identity protection, would be leveraged for the same.
-
-  Following is to be done before the cluster is being setup
-
-  - 
-
 - Create the Cluster with all the above info
-
 - The same script can be used to *Update* or *Scale* the Cluster
 
 Let us see how the script is designed to achieve this -
@@ -769,6 +760,22 @@ The script is self explanatory...only thing to note here is the commented out se
 ## Components and User Roles
 
 ![](./Assets/AKS-Components.png)
+
+The MOST important work to be performed by Cluster Admins after the cluster is created.
+
+- Define 3 User groups in Azure AD viz. *Cluster Admin, Architect, Developer*
+
+- Define Architect Roles in YAML files
+
+- Define Developer Roles in YAML files
+
+  (*Ref: https://github.com/monojit18/AKSAutomate/tree/master/Deployments/DEV/YAMLs/RBAC*)
+
+As you can see from the figure -
+
+- **Cluster Admins** - have all access to all resources and components within the cluster
+- **Architect** - having less access than CAs - primarily *Nodes, Services, ConfigMaps, Secrets, Network Policies* etc.
+- **Developer** - having least access to cluster resources & components - primarily Pods (apps/micro-servies), Logs, 
 
 
 
