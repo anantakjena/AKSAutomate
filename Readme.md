@@ -1,8 +1,12 @@
 # Automating Kubernetes on Azure - AKS and DevOps
 
+[toc]
 
 
-[TOC]
+
+
+
+
 
 
 
