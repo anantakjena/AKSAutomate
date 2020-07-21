@@ -1,5 +1,11 @@
 # Automating Kubernetes on Azure - AKS and DevOps
 
+
+
+[TOC]
+
+
+
 ### Prelude
 
 *Azure Kubernetes Service* a.k.a AKS - is a fully managed service that helps to deploy a managed Kubernetes cluster on Azure.
@@ -117,11 +123,49 @@ Let us now get into some action with all *Plans* in-place!
 
 As we had mentioned, it would be a 3-step approach to create the cluster. We would first do this with scripts from command line and then would do the same using Azure DevOps. Once the cluster is ready, we can start deploying applications onto it. Let us set the ball rolling...
 
-#### Step 1 - PreConfig
+Before getting into actual action, couple of minutes to understand the folder structure that we would be following (*most important*)
+
+###### Deployments/DEV
+
+DEV denotes the namespace for which below scripts would work; *For other tiers like QA there would be similar folders to be created*
+
+- **Certs** - Contains all certificates needed; in this case basically the SSL certificate for Application Gateway
+
+  (*Ref*: *https://github.com/monojit18/AKSAutomate/tree/master/Deployments/DEV/Certs*)
+
+- **Setup** - Contains all the scripts to be used in this process
+
+  (*Ref*: *https://github.com/monojit18/AKSAutomate/tree/master/Deployments/DEV/Setup*)
+
+  - **Security** - Scripts for all security tasks - *Secret creation, Private Link creation, IP Config for Cluster*
+
+- **Templates** - The key folder which contains all ARM templates and corresponding PowerShell scripts to deploy them. This ensures a completely decoupled approach for deployment; all ancillary components can be deployed outside the cluster process at any point of time!
+
+  (*Ref*: *https://github.com/monojit18/AKSAutomate/tree/master/Deployments/DEV/Templates)*
+
+- **YAMLs** - Contains all YAML files needed post creation of cluster - Post Provisioning stage where created cluster is configured by Cluster Admins
+
+  (*Ref*: https://github.com/monojit18/AKSAutomate/tree/master/Deployments/DEV/YAMLs)
+
+  - **ClusterAdmin** - Scripts for Cluster Admin functionalities
+
+    (*Ref*: *https://github.com/monojit18/AKSAutomate/tree/master/Deployments/DEV/YAMLs/ClusterAdmin*)
+
+  - **Ingress** - Scripts for Ingress creation for the DEV namespace
+
+    (*Ref*: *https://github.com/monojit18/AKSAutomate/tree/master/Deployments/DEV/YAMLs/Ingress*)
+
+  - **RBAC** - Scripts for RBAC definition for entire cluster as well as namespaces resources
+
+    (*Ref*: *https://github.com/monojit18/AKSAutomate/tree/master/Deployments/DEV/YAMLs/Ingress*)
+
+
+
+#### Step 1 - PreConfig (Pre-Provisioning)
 
 ![](./Assets/AKS-3-Step-PreConfig.png)
 
-This is the Pre-Provisioning of the cluster where the corresponding script would create all necessary resources for the AKS cluster as depicted in the diagram. Primary responsibilities would be:
+This is the Pre-Provisioning of the cluster where the corresponding script would create all necessary resources for the AKS cluster as depicted in the diagram. Primary responsibilities would be -
 
 - Create 2 Service Principals - One for Network roles and another one for ACR; new pull explain that in details shortly
 
@@ -163,20 +207,26 @@ This is the Pre-Provisioning of the cluster where the corresponding script would
 
   Based on that, decide a VNET address space of an address space e.g. xxx.0.0.0/16; this accounts for 65k Ip address approximately - This is also Infra team's discretion
 
-  So, let us create -
+  So, let us create **Networks** -
 
   - One VNET for AKS + other resources - /16
   - One Subnet for AKS cluster - /22, /20
   - One Subnet for Application gateway - /27
   - One Subnet for APIM - /29
 
+  (*Ref: https://github.com/monojit18/AKSAutomate/tree/master/Deployments/DEV/Templates/Network*)
+
 - Network role assignment - Once VNET/Subnets are created, the service principal for *Network* should be assigned a *Network Contributor* role scoped to the above VNET
 
-- Create ACR - Azure Container Registry for holding container images in a private docker registry provided by Azure as service
+- Create **ACR** - Azure Container Registry for holding container images in a private docker registry provided by Azure as service
+
+  (*Ref: https://github.com/monojit18/AKSAutomate/tree/master/Deployments/DEV/Templates/ACR*)
 
 - ACR role assignment - Once ACR is created, the service principal for *ACR* should be assigned a *ACRPush* role scoped to the above ACR
 
-- Create KeyVault - KeyVault instance on Azure for holding various secrets - basically the entire automation of AKS and its success would depend on the proper management of this
+- Create **KeyVault** - KeyVault instance on Azure for holding various secrets - basically the entire automation of AKS and its success would depend on the proper management of this
+
+  (*Ref: https://github.com/monojit18/AKSAutomate/tree/master/Deployments/DEV/Templates/KeyVault*)
 
 Let us see how the script is designed to achieve this -
 
@@ -201,9 +251,9 @@ param([Parameter(Mandatory=$false)] [string] $resourceGroup = "aks-workshop-rg",
         [Parameter(Mandatory=$false)] [string] $networkTemplateFileName = "aksauto-network-deploy",
         [Parameter(Mandatory=$false)] [string] $acrTemplateFileName = "aksauto-acr-deploy",
         [Parameter(Mandatory=$false)] [string] $kvTemplateFileName = "aksauto-keyvault-deploy",        
-        [Parameter(Mandatory=$false)] [string] $subscriptionId = "6bdcc705-8db6-4029-953a-e749070e6db6",
-        [Parameter(Mandatory=$false)] [string] $objectId = "890c52c5-d318-4185-a548-e07827190ff6",
-        [Parameter(Mandatory=$false)] [string] $baseFolderPath = "/home/devops-vm-ubuntu1804/Deployments/DEV") # on devops machine
+        [Parameter(Mandatory=$false)] [string] $subscriptionId = "<subscriptionId>",
+        [Parameter(Mandatory=$false)] [string] $objectId = "<objectId>",
+        [Parameter(Mandatory=$false)] [string] $baseFolderPath = "<baseFolderPath- local or remote>")
 
 $vnetRole = "Network Contributor"
 $aksSPIdName = $clusterName + "-sp-id"
@@ -335,12 +385,24 @@ Write-Host "------Pre-Config------"
 The is step is fairly straight forward -
 
 - Get ACR reference using PowerShell cmdlet, which was created in the *PreConfig* step
+
 - Get KeyVault reference using PowerShell cmdlet, which was created in the *PreConfig* step - primarily to read the Service Principal values with Network Contributor role which should be assigned to the Cluster
+
 - Get Network reference created in previous *PreConfig* step
+
+- Azure AD integration - this is done so that all RBAC can be performed on the cluster later on...Azure AD being first class service on Azure for Identity protection, would be leveraged for the same.
+
+  Following is to be done before the cluster is being setup
+
+  - 
+
 - Create the Cluster with all the above info
+
 - The same script can be used to *Update* or *Scale* the Cluster
 
 Let us see how the script is designed to achieve this -
+
+##### aksauto-cluster-setup.ps1
 
 ```powershell
 param([Parameter(Mandatory=$true)]    [string] $mode,
@@ -508,17 +570,199 @@ Write-Host "-----------Setup------------"
 
 
 
+#### Step 3 - PostConfig (Post-Provisioning)
 
+![](./Assets/AKS-3-Step-PostConfig.png)
 
+This is the Post-Provisioning of the cluster where the corresponding script would perform all necessary configuration actions, which would depend on requirement. So there is no hard-n-fast rule for this script...and is completely at the discretion of the Developer Architect(Not Cluster Admin excatly) team. Tis script would also create necessary ancillary resources for the AKS cluster as depicted in the diagram -
 
+- Get KeyVault reference using PowerShell cmdlet and get secret values - primarily Login credentials for ACR
 
-## Automate Deployment
+- Call Azure CLI to switch context to appropriate cluster
 
-![](./Assets/AKS-Ref-Achitecture-Deployment.png)
+- Perform ACR Login using credentials read from KeyVault as above
 
+- Create namespaces for various tiers/tenants - as the case may be
 
+- Install Ingress controller (*in this case it was NGINX*) using Helm chart
 
+- Deploy Application Gateway sign ARM template and PowerShell
 
+  (*Ref: https://github.com/monojit18/AKSAutomate/tree/master/Deployments/DEV/Templates/AppGW*)
+
+##### aksauto-cluster-postconfig.ps1
+
+```powershell
+param([Parameter(Mandatory=$false)]   [string] $resourceGroup = "aks-workshop-rg",
+        [Parameter(Mandatory=$false)] [string] $dvoResourceGroup = "devops-workshop-rg",
+        [Parameter(Mandatory=$false)] [string] $projectName = "aks-workshop",
+        [Parameter(Mandatory=$false)] [string] $location = "eastus",
+        [Parameter(Mandatory=$false)] [string] $clusterName = "aks-workshop-cluster",        
+        [Parameter(Mandatory=$false)] [string] $acrName = "akswkshpacr",
+        [Parameter(Mandatory=$false)] [string] $keyVaultName = "aks-workshop-kv",
+        [Parameter(Mandatory=$false)] [string] $appgwName = "aks-workshop-appgw",
+        [Parameter(Mandatory=$false)] [string] $aksVNetName = "aks-workshop-vnet",
+        [Parameter(Mandatory=$false)] [string] $aksSubnetName = "aks-workshop-subnet",
+        [Parameter(Mandatory=$false)] [string] $appgwSubnetName = "aks-workshop-appgw-subnet",
+        [Parameter(Mandatory=$false)] [string] $dvoVNetName = "devops-workshop-vnet",
+        [Parameter(Mandatory=$false)] [string] $dvoSubetName = "devops-workshop-subnet",
+        [Parameter(Mandatory=$false)] [string] $appgwTemplateFileName = "aksauto-appgw-deploy",
+        [Parameter(Mandatory=$false)] [string] $pepConfigFileName = "aksauto-pep-config",
+        [Parameter(Mandatory=$false)] [string] $pepTemplateFileName = "aksauto-pep-deploy",
+        [Parameter(Mandatory=$false)] [string] $acrPvtLinkFileName = "aksauto-acr-plink-config",
+        [Parameter(Mandatory=$false)] [string] $kvPvtLinkFileName = "aksauto-kv-plink-config",
+        [Parameter(Mandatory=$false)] [string] $ingControllerIPAddress = "173.0.0.200",
+        [Parameter(Mandatory=$false)] [string] $baseFolderPath = "<baseFolderPath- local or remote>")
+
+$acrSPIdName = $acrName + "-sp-id"
+$acrSPSecretName = $acrName + "-sp-secret"
+$templatesFolderPath = $baseFolderPath + "/Templates"
+$yamlFilePath = "$baseFolderPath/YAMLs"
+$devNamespace = $projectName + "-dev"
+$qaNamespace = $projectName + "-qa"
+$ratingsNamespace = "ratingsapp"
+$ingControllerName = $projectName + "-ing"
+$ingControllerNSName = $ingControllerName + "-ns"
+$ingControllerFileName = "internal-ingress"
+
+# Enable these lines if you want Private Endpoint
+
+# $setupFolderPath = $baseFolderPath + "/Setup"
+# $acrAKSPepName = $projectName + "-acr-aks-pep"
+# $acrAKSPepConnectionName = $acrAKSPepName + "-conn"
+# $acrDevOpsPepName = $projectName + "-acr-devops-pep"
+# $acrDevOpsPepConnectionName = $acrDevOpsPepName + "-conn"
+# $acrPepResourceType = "Microsoft.ContainerRegistry/registries"
+# $acrPepSubResourceId = "registry"
+# $kvDevOpsPepName = $projectName + "-kv-devops-pep"
+# $kvDevOpsPepConnectionName = $kvDevOpsPepName + "-conn"
+# $kvPepResourceType = "Microsoft.KeyVault/vaults"
+# $kvPepSubResourceId = "vault"
+# $acrAKSVnetLinkName = $acrAKSPepName + "-link"
+# $acrDevOpsVnetLinkName = $acrDevOpsPepName + "-link"
+# $kvDevOpsVnetLinkName = $kvDevOpsPepName + "-link"
+
+# $acrAKSPepNames = "-pepName $acrAKSPepName -pepConnectionName $acrAKSPepConnectionName -pepResourceType $acrPepResourceType -pepResourceName $acrName -pepTemplateFileName $pepTemplateFileName -pepSubResourceId $acrPepSubResourceId"
+# $acrAKSPepDeployCommand = "/Security/$pepConfigFileName.ps1 -resourceGroup $resourceGroup -vnetResourceGroup $resourceGroup -vnetName $aksVNetName -subnetName $aksSubnetName -baseFolderPath $baseFolderPath $acrAKSPepNames"
+
+# $acrAKSPvtLinkNames = "-pepName $acrAKSPepName -pepResourceName $acrName -vnetLinkName $acrAKSVnetLinkName"
+# $acrAKSPvtLinkDeployCommand = "/Security/$acrPvtLinkFileName.ps1 -resourceGroup $resourceGroup -vnetResourceGroup $resourceGroup -location $location -vnetName $aksVNetName $acrAKSPvtLinkNames"
+
+# $acrDevOpsPepNames = "-pepName $acrDevOpsPepName -pepConnectionName $acrDevOpsPepConnectionName -pepResourceType $acrPepResourceType -pepResourceName $acrName -pepTemplateFileName $pepTemplateFileName -pepSubResourceId $acrPepSubResourceId"
+# $acrDevOpsPepDeployCommand = "/Security/$pepConfigFileName.ps1 -resourceGroup $resourceGroup -vnetResourceGroup $dvoResourceGroup -vnetName $dvoVNetName -subnetName $dvoSubetName -baseFolderPath $baseFolderPath $acrDevOpsPepNames"
+
+# $acrDevOpsPvtLinkNames = "-pepName $acrDevOpsPepName -pepResourceName $acrName -vnetLinkName $acrDevOpsVnetLinkName"
+# $acrDevOpsPvtLinkDeployCommand = "/Security/$acrPvtLinkFileName.ps1 -resourceGroup $resourceGroup -vnetResourceGroup $dvoResourceGroup -location $location -vnetName $dvoVNetName $acrDevOpsPvtLinkNames"
+
+# $kvDevOpsPepNames = "-pepName $kvDevOpsPepName -pepConnectionName $kvDevOpsPepConnectionName -pepResourceType $kvPepResourceType -pepResourceName $keyVaultName -pepTemplateFileName $pepTemplateFileName -pepSubResourceId $kvPepSubResourceId"
+# $kvDevOpsPepDeployCommand = "/Security/$pepConfigFileName.ps1 -resourceGroup $resourceGroup -vnetResourceGroup $dvoResourceGroup -vnetName $dvoVNetName -subnetName $dvoSubetName -baseFolderPath $baseFolderPath $kvDevOpsPepNames"
+
+# $kvDevOpsPvtLinkNames = "-pepName $kvDevOpsPepName -pepResourceName $keyVaultName -vnetLinkName $kvDevOpsVnetLinkName"
+# $kvDevOpsPvtLinkDeployCommand = "/Security/$kvPvtLinkFileName.ps1 -resourceGroup $resourceGroup -vnetResourceGroup $dvoResourceGroup -location $location -vnetName $dvoVNetName $kvDevOpsPvtLinkNames"
+
+# $acrUpdateNwRulesCommand = "az acr update --public-network-enabled false --name $acrName --resource-group $resourceGroup"
+# $kvUpdateNwRulesCommand = "Update-AzKeyVaultNetworkRuleSet -DefaultAction Deny -ResourceGroupName $resourceGroup -VaultName $keyVaultName"
+
+$acrInfo = Get-AzContainerRegistry -ResourceGroupName $resourceGroup -Name $acrName
+if (!$acrInfo)
+{
+
+    Write-Host "Error creating Service Principal"
+    return;
+
+}
+
+Write-Host $acrInfo.Id
+
+$acrUserName = Get-AzKeyVaultSecret -VaultName $keyVaultName `
+-Name $acrSPIdName
+if (!$acrUserName)
+{
+
+    Write-Host "Error fetching Service Principal Id"
+    return;
+
+}
+
+$acrPassword = Get-AzKeyVaultSecret -VaultName $keyVaultName `
+-Name $acrSPSecretName
+if (!$acrPassword)
+{
+
+    Write-Host "Error fetching Service Principal Password"
+    return;
+
+}
+
+$dockerServer = $acrInfo.LoginServer
+$dockerUserName = $acrUserName.SecretValueText
+$dockerPassword = $acrPassword.SecretValueText
+
+# Switch Cluster context
+$kbctlContextCommand = "az aks get-credentials --resource-group $resourceGroup --name $clusterName --overwrite-existing --admin"
+Invoke-Expression -Command $kbctlContextCommand
+
+# Docker Login command
+$dockerLoginCommand = "docker login $dockerServer --username $dockerUserName --password $dockerPassword"
+Invoke-Expression -Command $dockerLoginCommand
+
+# Configure ILB file
+$ipReplaceCommand = "sed -e 's|<ILB_IP>|$ingControllerIPAddress|' $yamlFilePath/Common/$ingControllerFileName.yaml > $yamlFilePath/Common/tmp.$ingControllerFileName.yaml"
+Invoke-Expression -Command $ipReplaceCommand
+# Remove temp ILB file
+$removeTempFileCommand = "mv $yamlFilePath/Common/tmp.$ingControllerFileName.yaml $yamlFilePath/Common/$ingControllerFileName.yaml"
+Invoke-Expression -Command $removeTempFileCommand
+
+# Create Namespaces
+# DEV NS
+$namespaceCommand = "kubectl create ns $devNamespace"
+Invoke-Expression -Command $namespaceCommand
+
+# QA NS
+$namespaceCommand = "kubectl create ns $qaNamespace"
+Invoke-Expression -Command $namespaceCommand
+
+# nginx NS
+$nginxNSCommand = "kubectl create namespace $ingControllerNSName"
+Invoke-Expression -Command $nginxNSCommand
+
+# Install nginx as ILB using Helm
+$nginxILBCommand = "helm install $ingControllerName stable/nginx-ingress --namespace $ingControllerNSName -f $yamlFilePath/Common/$ingControllerFileName.yaml --set controller.replicaCount=2 --set nodeSelector.""beta.kubernetes.io/os""=linux"
+Invoke-Expression -Command $nginxILBCommand
+
+# Install AppGW
+$networkNames = "-appgwName $appgwName -vnetName $aksVNetName -subnetName $appgwSubnetName"
+$appgwDeployCommand = "/AppGW/$appgwTemplateFileName.ps1 -rg $resourceGroup -fpath $templatesFolderPath -deployFileName $appgwTemplateFileName -backendIPAddress $ingControllerIPAddress $networkNames"
+$appgwDeployPath = $templatesFolderPath + $appgwDeployCommand
+Invoke-Expression -Command $appgwDeployPath
+
+# Enable these lines if you want Private Endpoint
+
+# Invoke-Expression -Command $acrUpdateNwRulesCommand
+# $acrAKSPepDeployPath = $setupFolderPath + $acrAKSPepDeployCommand
+# Invoke-Expression -Command $acrAKSPepDeployPath
+
+# $acrAKSPvtLinkDeployPath = $setupFolderPath + $acrAKSPvtLinkDeployCommand
+# Invoke-Expression -Command $acrAKSPvtLinkDeployPath
+
+# $acrDevOpsPepDeployPath = $setupFolderPath + $acrDevOpsPepDeployCommand
+# Invoke-Expression -Command $acrDevOpsPepDeployPath
+
+# $acrDevOpsPvtLinkDeployPath = $setupFolderPath + $acrDevOpsPvtLinkDeployCommand
+# Invoke-Expression -Command $acrDevOpsPvtLinkDeployPath
+
+# Invoke-Expression -Command $kvUpdateNwRulesCommand
+# $kvDevOpsPepDeployPath = $setupFolderPath + $kvDevOpsPepDeployCommand
+# Invoke-Expression -Command $kvDevOpsPepDeployPath
+
+# $kvDevOpsPvtLinkDeployPath = $setupFolderPath + $kvDevOpsPvtLinkDeployCommand
+# Invoke-Expression -Command $kvDevOpsPvtLinkDeployPath
+
+Write-Host "-----------Post-Config------------"
+
+```
+
+The script is self explanatory...only thing to note here is the commented out section(s) which are for PrivateLink enablement which is optional
 
 
 
@@ -567,3 +811,12 @@ Write-Host "-----------Setup------------"
 ## Auto Scaling
 
 ![](./Assets/AKS-Components-AutoScaling.png)
+
+
+
+
+
+## Automate Deployment
+
+![](./Assets/AKS-Ref-Achitecture-Deployment.png)
+

@@ -1,0 +1,25 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: exch-devuat-developer-roles
+  namespace: exch-devuat-dev
+rules:
+- apiGroups: ["", "apps", "networking.k8s.io"]
+  resources: ["configmaps", "pods", "pods/exec", "pods/log", "deployments", "services", "events", "ingresses"]
+  verbs: ["create", "delete", "deletecollection", "get", "list", "patch", "update", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: exch-devuat-developer-role-bindings
+  namespace: exch-devuat-dev
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: exch-devuat-developer-roles
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  name: f071caab-14be-433e-9711-32350418917f
+  kind: Group
+  namespace: exch-devuat-dev
