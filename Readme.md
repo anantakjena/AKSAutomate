@@ -3,8 +3,8 @@
 ### Table Of Contents
 
 1. [Prelude](#prelude) 
-2. [Pre-requisites](#pre-requisites, assumptions)
-3. 
+2. [Plan](#plan)
+3. [AKS Reference Architecture](#AKS Reference Architecture)
 
 
 
