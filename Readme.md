@@ -2,9 +2,9 @@
 
 ### Table Of Contents
 
-1. [Prelude](#Prelude])
-   - [Pre-requisites](#Pre-requisites, Assumptions)
-2. 
+1. [Prelude](#prelude) 
+2. [Pre-requisites](#pre-requisites, assumptions)
+3. 
 
 
 
