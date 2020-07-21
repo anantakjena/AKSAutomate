@@ -1,8 +1,10 @@
 # Automating Kubernetes on Azure - AKS and DevOps
 
-[toc]
+### Table Of Contents
 
-
+1. [Prelude](#Prelude])
+   - [Pre-requisites](#Pre-requisites, Assumptions)
+2. 
 
 
 
@@ -23,28 +25,42 @@ Hence a disciplined, streamlined and automated approach is needed so that end to
 The purpose of this workshop would be to:
 
 - Refer the famous AKS workshop - https://docs.microsoft.com/en-us/learn/modules/aks-workshop/ as base and build on top of it
+
 - Use Kubernetes as the tool or orchestration of micro-services
+
 - Build micro-services of varying nature and tech-stack - NodeJS, 
+
 - Build an automated pipeline and workflow for creating Infrastructure for the deploying micro-services - *3-Step Approach*
+
 - Extend the pipeline to automate deployment of micro-services
+
 - Leverage AKS as a hosted service around Kubernetes (a.k.a K8s) for better manageability, less complexity
+
 - Use the built-in features of AKS for monitoring, security and upgrades
+
 - Define Resource Quota and appropriate Storage for micro-services
+
 - Define Network Policies for controlling the communication between different tiers of micro-services
+
 - Integrating with Azure AD and define RBAC for the cluster and its sub-components
+
 - Auto Scale microservices horizontally based on CPU utilisation
+
 - Auto Scale Nodes horizontally
+
 - Secure cluster as well as various ancillary resources using Private Endpoint
 
-###### Pre-requisites, Assumptions
+  
 
-- A basic knowledge on Containers and MicroServices - *L100*
-- How to build docker image and create containers from it
-- Basic knowledge on K8s (AKS is not mandatory) - *L100*
-- Some knowledge on Azure tools & services viz. *Azure CLI, KeyVault, VNET* etc. would help
-- Apps and Micro-Services would be used interchangeably i.e. both are treated as same in this context
+  ###### Pre-requisites, Assumptions
 
-With this much ammunition, let us get into some action
+  - A basic knowledge on Containers and MicroServices - *L100*
+  - How to build docker image and create containers from it
+  - Basic knowledge on K8s (AKS is not mandatory) - *L100*
+  - Some knowledge on Azure tools & services viz. *Azure CLI, KeyVault, VNET* etc. would help
+  - Apps and Micro-Services would be used interchangeably i.e. both are treated as same in this context
+
+  With this much ammunition, let us get into some action
 
 ### Plan
 
