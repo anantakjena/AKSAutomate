@@ -554,7 +554,7 @@ Write-Host "-----------Setup------------"
 
 #### Step 3 - PostConfig (Post-Provisioning)
 
-![AKS-3-Step-PostConfig](/Users/monojitd/Materials/Projects/AKSProjects/AKSWorkshop/AKSAutomate/Assets/AKS-3-Step-PostConfig.png)
+![](./Assets/AKS-3-Step-PostConfig.png)
 
 This is the Post-Provisioning of the cluster where the corresponding script would perform all necessary configuration actions, which would depend on requirement. So there is no hard-n-fast rule for this script...and is completely at the discretion of the Developer Architect(Not Cluster Admin excatly) team. Tis script would also create necessary ancillary resources for the AKS cluster as depicted in the diagram -
 
