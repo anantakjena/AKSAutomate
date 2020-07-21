@@ -7,6 +7,7 @@
 3. [AKS Reference Architecture](#aks-reference-architecture)
 4. [Action](#action) 
    - [Deployments](#deploymentsdev)
+   - [PreConfig](#Step 1 - PreConfig (Pre-Provisioning))
 
 
 
