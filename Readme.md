@@ -1,18 +1,5 @@
 # Automating Kubernetes on Azure - AKS and DevOps
 
-### Table Of Contents
-
-1. [Prelude](#prelude) 
-2. [Plan](#plan)
-3. [AKS Reference Architecture](#aks-reference-architecture)
-4. [Action](#action) 
-   - [Deployments](#deploymentsdev)
-   - [PreConfig](#Step-1 - PreConfig-(Pre-Provisioning))
-
-
-
-
-
 ### Prelude
 
 *Azure Kubernetes Service* a.k.a AKS - is a fully managed service that helps to deploy a managed Kubernetes cluster on Azure.
@@ -26,42 +13,25 @@ Hence a disciplined, streamlined and automated approach is needed so that end to
 The purpose of this workshop would be to:
 
 - Refer the famous AKS workshop - https://docs.microsoft.com/en-us/learn/modules/aks-workshop/ as base and build on top of it
-
 - Use Kubernetes as the tool or orchestration of micro-services
-
 - Build micro-services of varying nature and tech-stack - NodeJS, 
-
 - Build an automated pipeline and workflow for creating Infrastructure for the deploying micro-services - *3-Step Approach*
-
 - Extend the pipeline to automate deployment of micro-services
-
 - Leverage AKS as a hosted service around Kubernetes (a.k.a K8s) for better manageability, less complexity
-
 - Use the built-in features of AKS for monitoring, security and upgrades
-
 - Define Resource Quota and appropriate Storage for micro-services
-
-- Define Network Policies for controlling the communication between different tiers of micro-services
-
 - Integrating with Azure AD and define RBAC for the cluster and its sub-components
-
-- Auto Scale microservices horizontally based on CPU utilisation
-
-- Auto Scale Nodes horizontally
-
 - Secure cluster as well as various ancillary resources using Private Endpoint
 
-  
+###### Pre-requisites, Assumptions
 
-  ###### Pre-requisites, Assumptions
+- A basic knowledge on Containers and MicroServices - *L100*
+- How to build docker image and create containers from it
+- Basic knowledge on K8s (AKS is not mandatory) - *L100*
+- Some knowledge on Azure tools & services viz. *Azure CLI, KeyVault, VNET* etc. would help
+- Apps and Micro-Services would be used interchangeably i.e. both are treated as same in this context
 
-  - A basic knowledge on Containers and MicroServices - *L100*
-  - How to build docker image and create containers from it
-  - Basic knowledge on K8s (AKS is not mandatory) - *L100*
-  - Some knowledge on Azure tools & services viz. *Azure CLI, KeyVault, VNET* etc. would help
-  - Apps and Micro-Services would be used interchangeably i.e. both are treated as same in this context
-
-  With this much ammunition, let us get into some action
+With this much ammunition, let us get into some action
 
 ### Plan
 
@@ -206,21 +176,21 @@ This is the Pre-Provisioning of the cluster where the corresponding script would
 
   Let us assume,
 
-  Np = Max. Number of Pods in each Node (Ideally should not be more ethan 40-50)
+  **Np** = Max. Number of Pods in each Node (Ideally should not be more ethan 40-50)
 
-  Nd = Max. Number of Nodes possible (approx.)
+  **Nd** = Max. Number of Nodes possible (approx.)
 
-  Then the total no. of addresses that you would need in AKS Subnet = *(Np * (Nd + 1) + Np)*
+  Then the total no. of addresses that you would need in AKS Subnet = ***(Np * (Nd + 1) + Np)***
 
-  +1 for reserved IP by system for each Node
+  *+1 for reserved IP by system for each Node*
 
-  +Np for additional IPs you might need while Upgrade - normally K8s system will pull down one Node at a time, transfer all workloads to another Node and then upgrade the previous Node
+  *+Np for additional IPs you might need while Upgrade* - normally K8s system will pull down one Node at a time, transfer all workloads to another Node and then upgrade the previous Node
 
   It is advisable to keep some more in buffer based on workloads and other unforeseen situations
 
-  What we have seen, for high end workloads, ideally for a *DEV-UAT* cluster, we should go with /21 or /22 which means around 2k or 1k *Nodes*.
+  What we have seen, for high end workloads, ideally for a *DEV-UAT* cluster, we should go with **/21 or /22** which means around 2k or 1k *Nodes*.
 
-  *PROD* cluster should have a bit more like /18 or /20 which means around 16k or 4k *Nodes*.
+  *PROD* cluster should have a bit more like **/18 or /20** which means around 16k or 4k *Nodes*.
 
   *These are all based on experiences form various projects and values to be decided by Infra team as per their convenience and infrastructure constraints!*
 
@@ -237,13 +207,13 @@ This is the Pre-Provisioning of the cluster where the corresponding script would
 
   (*Ref: https://github.com/monojit18/AKSAutomate/tree/master/Deployments/DEV/Templates/Network*)
 
-- Network role assignment - Once VNET/Subnets are created, the service principal for *Network* should be assigned a *Network Contributor* role scoped to the above VNET
+- **Network** role assignment - Once VNET/Subnets are created, the service principal for *Network* should be assigned a *Network Contributor* role scoped to the above VNET
 
 - Create **ACR** - Azure Container Registry for holding container images in a private docker registry provided by Azure as service
 
   (*Ref: https://github.com/monojit18/AKSAutomate/tree/master/Deployments/DEV/Templates/ACR*)
 
-- ACR role assignment - Once ACR is created, the service principal for *ACR* should be assigned a *ACRPush* role scoped to the above ACR
+- **ACR** role assignment - Once ACR is created, the service principal for *ACR* should be assigned a *ACRPush* role scoped to the above ACR
 
 - Create **KeyVault** - KeyVault instance on Azure for holding various secrets - basically the entire automation of AKS and its success would depend on the proper management of this
 
@@ -584,7 +554,7 @@ Write-Host "-----------Setup------------"
 
 #### Step 3 - PostConfig (Post-Provisioning)
 
-![](./Assets/AKS-3-Step-PostConfig.png)
+![AKS-3-Step-PostConfig](/Users/monojitd/Materials/Projects/AKSProjects/AKSWorkshop/AKSAutomate/Assets/AKS-3-Step-PostConfig.png)
 
 This is the Post-Provisioning of the cluster where the corresponding script would perform all necessary configuration actions, which would depend on requirement. So there is no hard-n-fast rule for this script...and is completely at the discretion of the Developer Architect(Not Cluster Admin excatly) team. Tis script would also create necessary ancillary resources for the AKS cluster as depicted in the diagram -
 
@@ -598,7 +568,7 @@ This is the Post-Provisioning of the cluster where the corresponding script woul
 
 - Install Ingress controller (*in this case it was NGINX*) using Helm chart
 
-- Deploy Application Gateway sign ARM template and PowerShell
+- Deploy Application Gateway using ARM template and PowerShell
 
   (*Ref: https://github.com/monojit18/AKSAutomate/tree/master/Deployments/DEV/Templates/AppGW*)
 
@@ -776,11 +746,193 @@ Write-Host "-----------Post-Config------------"
 
 The script is self explanatory...only thing to note here is the commented out section(s) which are for PrivateLink enablement which is optional
 
+##### **aksauto-secret-create.ps1**
+
+```powershell
+param([Parameter(Mandatory=$true)]    [string] $secretName,
+        [Parameter(Mandatory=$true)]  [array]  $secretKeys,
+        [Parameter(Mandatory=$true)]  [array]  $secretValues,
+        [Parameter(Mandatory=$true)]  [string] $namespaceName,
+        [Parameter(Mandatory=$false)] [bool]   $isDockerSecret = $false)
+
+$index = 0
+$secretTokensList = [System.Collections.ArrayList]@()
+
+$secretName = "'" + $secretName + "'"
+$secretNameCommand = "kubectl get secrets -n $namespaceName -o=jsonpath=""{.items[?(@.metadata.name==$secretName)].metadata.name}"""
+$existingSecretName = Invoke-Expression -Command $secretNameCommand 
+$existingSecretName = "'" + $existingSecretName + "'"
+
+if ($existingSecretName -eq $secretName)
+{
+    return;
+}
+
+if ($isDockerSecret -eq $true)
+{
+        foreach($key in $secretKeys)
+        {
+                $tokens = "--" + $key + "=" + $secretValues[$index++]
+                $secretTokensList.Add($tokens)
+        }
+
+        $secretTokens = $secretTokensList -join " "
+        $dockerSecretCommand = "kubectl create secret docker-registry $secretName $secretTokens -n $namespaceName"
+        Invoke-Expression -Command $dockerSecretCommand 
+}
+else
+{
+        foreach($key in $secretKeys)
+        {
+                $tokens = "--from-literal=" + $key + "=" + $secretValues[$index++]
+                $secretTokensList.Add($tokens)
+        }
+
+        $secretTokens =  $secretTokensList -join " "
+        $genericSecretCommand = "kubectl create secret generic $secretName $secretTokens -n $namespaceName"
+        Invoke-Expression -Command $genericSecretCommand 
+
+}
+```
+
+
+
+##### aksauto-secret-delete.ps1
+
+```powershell
+param([Parameter(Mandatory=$false)] [string] $secretName,      
+        [Parameter(Mandatory=$false)] [string] $namespaceName)
+
+$secretName = "'" + $secretName + "'"
+$secretNameCommand = "kubectl get secrets -n $namespaceName -o=jsonpath=""{.items[?(@.metadata.name==$secretName)].metadata.name}"""
+$existingSecretName = Invoke-Expression -Command $secretNameCommand 
+$existingSecretName = "'" + $existingSecretName + "'"
+
+if ($existingSecretName -ne $secretName)
+{
+    return;
+}
+
+$deleteDockerSecretCommand = "kubectl delete secrets/$secretName -n $namespaceName"
+Invoke-Expression -Command $deleteDockerSecretCommand
+```
+
+
+
+##### aksauto-cluster-remove.ps1
+
+```powershell
+param([Parameter(Mandatory=$false)]   [string] $resourceGroup = "aks-workshop-rg",
+        [Parameter(Mandatory=$false)] [string] $projectName = "aks-workshop",
+        [Parameter(Mandatory=$false)] [string] $clusterName = "aks-workshop-cluster",
+        [Parameter(Mandatory=$false)] [string] $acrName = "akswkshpacr",
+        [Parameter(Mandatory=$false)] [string] $keyVaultName = "aks-workshop-kv",
+        [Parameter(Mandatory=$false)] [string] $aksVNetName = "aks-workshop-vnet",        
+        [Parameter(Mandatory=$false)] [string] $appgwName = "aks-workshop-appgw",
+        [Parameter(Mandatory=$false)] [string] $subscriptionId = "<subscriptionId>")
+
+$aksSPIdName = $clusterName + "-sp-id"
+$publicIpAddressName = "$appgwName-pip"
+# $acrPrivateDnsZone = "privateLink.azurecr.io"
+# $kvPrivateDnsZone = "privatelink.vaultcore.azure.net"
+$subscriptionCommand = "az account set -s $subscriptionId"
+
+$acrAKSPepName = $projectName + "acr-aks-pep"
+$acrDevOpsPepName = $projectName + "acr-devops-pep"
+$kvDevOpsPepName = $projectName + "kv-devops-pep"
+$acrAKSVnetLinkName = $acrAKSPepName + "-link"
+$acrDevOpsVnetLinkName = $acrDevOpsPepName + "-link"
+$kvDevOpsVnetLinkName = $kvDevOpsPepName + "-link"
+
+# PS Select Subscriotion 
+Select-AzSubscription -SubscriptionId $subscriptionId
+
+# CLI Select Subscriotion 
+Invoke-Expression -Command $subscriptionCommand
+
+az aks delete --name $clusterName --resource-group $resourceGroup --yes
+
+Remove-AzApplicationGateway -Name $appgwName `
+-ResourceGroupName $resourceGroup -Force
+
+Remove-AzPublicIpAddress -Name $publicIpAddressName `
+-ResourceGroupName $resourceGroup -Force
+
+$keyVault = Get-AzKeyVault -ResourceGroupName $resourceGroup `
+-VaultName $keyVaultName
+if ($keyVault)
+{
+
+    $spAppId = Get-AzKeyVaultSecret -VaultName $keyVaultName `
+    -Name $aksSPIdName
+    if ($spAppId)
+    {
+     
+        Remove-AzADServicePrincipal `
+        -ApplicationId $spAppId.SecretValueText -Force
+        
+    }
+}
+
+# Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
+# -Name $acrAKSPepName -Force
+
+# Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
+# -Name $acrDevOpsPepName -Force
+
+# Remove-AzPrivateDnsVirtualNetworkLink `
+# -ResourceGroupName $resourceGroup -ZoneName $acrPrivateDnsZone `
+# -Name $acrAKSVnetLinkName
+
+# Remove-AzPrivateDnsVirtualNetworkLink `
+# -ResourceGroupName $resourceGroup -ZoneName $acrPrivateDnsZone `
+# -Name $acrDevOpsVnetLinkName
+
+# $dnsRecordsList = Get-AzPrivateDnsRecordSet -ResourceGroupName $resourceGroup `
+# -ZoneName $acrPrivateDnsZone -RecordType "A"
+
+# Remove-AzPrivateDnsRecordSet -RecordSet $dnsRecordsList[0]
+# Remove-AzPrivateDnsRecordSet -RecordSet $dnsRecordsList[1]
+
+# Remove-AzPrivateDnsZone -ResourceGroupName $resourceGroup `
+# -Name $acrPrivateDnsZone
+
+# Remove-AzPrivateEndpoint -ResourceGroupName $resourceGroup `
+# -Name $kvDevOpsPepName -Force
+
+# Remove-AzPrivateDnsVirtualNetworkLink `
+# -ResourceGroupName $resourceGroup -ZoneName $kvPrivateDnsZone `
+# -Name $kvDevOpsVnetLinkName
+
+# $dnsRecord = Get-AzPrivateDnsRecordSet -ResourceGroupName $resourceGroup `
+# -ZoneName $kvPrivateDnsZone -RecordType "A"
+
+# Remove-AzPrivateDnsRecordSet -RecordSet $dnsRecord
+
+# Remove-AzPrivateDnsZone -ResourceGroupName $resourceGroup `
+# -Name $kvPrivateDnsZone
+
+# Remove-AzVirtualNetwork -Name $aksVNetName `
+# -ResourceGroupName $resourceGroup -Force
+
+# Remove-AzContainerRegistry -Name $acrName `
+# -ResourceGroupName $resourceGroup
+
+# Remove-AzKeyVault  -VaultName $keyVaultName `
+# -ResourceGroupName $resourceGroup -Force
+
+Write-Host "-----------Remove------------"
+```
+
 
 
 ## Components and User Roles
 
 ![](./Assets/AKS-Components.png)
+
+![](./Assets/AKS-Components-RoleBindings.png)
+
+
 
 The MOST important work to be performed by Cluster Admins after the cluster is created.
 
@@ -795,52 +947,20 @@ The MOST important work to be performed by Cluster Admins after the cluster is c
 As you can see from the figure -
 
 - **Cluster Admins** - have all access to all resources and components within the cluster
-- **Architect** - having less access than CAs - primarily *Nodes, Services, ConfigMaps, Secrets, Network Policies* etc.
-- **Developer** - having least access to cluster resources & components - primarily Pods (apps/micro-servies), Logs, 
 
+- **Architect** - having less access than CAs - primarily *Nodes, Secrets, Network Policies, PVCs, Namespaces, HPAs, CRDs* etc.
 
+- **Developer** - having least access to cluster resources & components - primarily *Pods (apps/micro-servies), Deployments, Services, ConfigMaps, Events, Logs* etc.
 
-
-
-
-
-## Role Bindings
-
-![](./Assets/AKS-Components-RoleBindings.png)
-
-
-
-
-
-
+  
 
 ## Storage - Persistent Volumes & Volume Claims
 
 ![](./Assets/AKS-Components-PV.png)
 
+An important step for Cluster Admins, post creation of the cluster - define the PersistentVolume(s) for the entire cluster. This can be multiple or single with definite volume quota assigned to this. every application would have q corresponding PVC - Persistent Volume Claim object to request for a Slice from PersistentVolume object.
 
-
-
-
-
-
-
-
-## Network Policy
-
-![](./Assets/AKS-Components-NP.png)
-
-
-
-
-
-
-
-## Auto Scaling
-
-![](./Assets/AKS-Components-AutoScaling.png)
-
-
+The purpose for this session is not to discuss PV or PVC in details and assume the reader has a certain level of knowledge on these.(*Ref: https://github.com/monojit18/AKSAutomate/blob/master/Deployments/DEV/YAMLs/ClusterAdmin/cluster-pv.yml*)
 
 
 
@@ -848,3 +968,34 @@ As you can see from the figure -
 
 ![](./Assets/AKS-Ref-Achitecture-Deployment.png)
 
+Let us now see how to do this AKS deployment automated i.e. running through these scripts using *Azure DevOps* so that the entire creation process becomes automated. The diagram is self-explanatory and one can build the DevOps pipeline quite easily; still let us discuss the salient points from the diagram for easy reference -
+
+1. Devops process would run in a Self-hosted agent on Azure Devops - https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-linux?view=azure-devops 
+2. The [Folder structure](#DeploymentsDEV) described should be followed if you want to run the scripts as-is; else some path references need to be modified
+3. CI Pipeline is very simple with only two tasks - *Copy* and *Publish* of files for the Release pipeline to use
+4. Release pipelines - This is where the magic is...and one has to understand the flow very carefully
+   - **PreConfig-Infra** -
+     - This pulls the published CI artefact from the last step
+     - A Manual Verification task would help user to check pre-requisites
+     - A PowerShell task to run the *PreConfig* script
+     - A Manual intervention task with housekeeping job would help user to perform - *Checks, Manual additions/changes* in the portal etc. before proceeding for the next step
+   - **Setup-Infra** -
+     - A PowerShell task to run the *Setup* script and create the cluster
+     - A Manual intervention task with housekeeping job would help user to perform - *Saving secured keys in KeyVault* etc. before proceeding for the next step
+   - **PostConfig-Infra** -
+     - A PowerShell task to run the *PostConfig* script and post-provision the cluster
+   - **Nodepool-Config-Infra** -
+     - A PowerShell task to run the *NodepoolConfig* script and Add/Update/Scale Nodepools in the cluster
+   - **Secrets** -
+     - A series of PowerShell task to perform various security task on the cluster
+       - Create/Delete Secrets
+       - Create/Delete Private Endpoints for *ACR* an *KeyVault*
+   - **Remove-Infra** -
+     - A PowerShell task to run the *Remove* script and clean all resources from the cluster
+
+#### Refs:
+
+- AKS Docs - https://docs.microsoft.com/en-us/azure/aks/
+- Azure DevOps - https://docs.microsoft.com/en-us/azure/devops/pipelines/?view=azure-devops
+- ARM template - https://docs.microsoft.com/en-us/azure/templates/
+- Source - https://github.com/monojit18/AKSAutomate

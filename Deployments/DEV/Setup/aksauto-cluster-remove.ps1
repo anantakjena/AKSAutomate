@@ -9,8 +9,8 @@ param([Parameter(Mandatory=$false)]   [string] $resourceGroup = "aks-workshop-rg
 
 $aksSPIdName = $clusterName + "-sp-id"
 $publicIpAddressName = "$appgwName-pip"
-$acrPrivateDnsZone = "privateLink.azurecr.io"
-$kvPrivateDnsZone = "privatelink.vaultcore.azure.net"
+# $acrPrivateDnsZone = "privateLink.azurecr.io"
+# $kvPrivateDnsZone = "privatelink.vaultcore.azure.net"
 $subscriptionCommand = "az account set -s $subscriptionId"
 
 $acrAKSPepName = $projectName + "acr-aks-pep"
