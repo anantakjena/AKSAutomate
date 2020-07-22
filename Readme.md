@@ -12,7 +12,6 @@ Hence a disciplined, streamlined and automated approach is needed so that end to
 
 The purpose of this workshop would be to:
 
-- Refer the famous AKS workshop - https://docs.microsoft.com/en-us/learn/modules/aks-workshop/ as base and build on top of it
 - Use Kubernetes as the tool or orchestration of micro-services
 - Build micro-services of varying nature and tech-stack - NodeJS, 
 - Build an automated pipeline and workflow for creating Infrastructure for the deploying micro-services - *3-Step Approach*
