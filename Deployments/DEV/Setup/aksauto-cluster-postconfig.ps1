@@ -17,7 +17,7 @@ param([Parameter(Mandatory=$false)]   [string] $resourceGroup = "aks-workshop-rg
         [Parameter(Mandatory=$false)] [string] $acrPvtLinkFileName = "aksauto-acr-plink-config",
         [Parameter(Mandatory=$false)] [string] $kvPvtLinkFileName = "aksauto-kv-plink-config",
         [Parameter(Mandatory=$false)] [string] $ingControllerIPAddress = "173.0.0.200",
-        [Parameter(Mandatory=$false)] [string] $baseFolderPath = "/home/devops-vm-ubuntu1804/Deployments/DEV")
+        [Parameter(Mandatory=$false)] [string] $baseFolderPath = "<baseFolderPath>")
 
 $acrSPIdName = $acrName + "-sp-id"
 $acrSPSecretName = $acrName + "-sp-secret"

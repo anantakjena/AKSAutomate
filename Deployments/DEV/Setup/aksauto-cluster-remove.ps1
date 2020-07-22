@@ -5,7 +5,7 @@ param([Parameter(Mandatory=$false)]   [string] $resourceGroup = "aks-workshop-rg
         [Parameter(Mandatory=$false)] [string] $keyVaultName = "aks-workshop-kv",
         [Parameter(Mandatory=$false)] [string] $aksVNetName = "aks-workshop-vnet",        
         [Parameter(Mandatory=$false)] [string] $appgwName = "aks-workshop-appgw",
-        [Parameter(Mandatory=$false)] [string] $subscriptionId = "6bdcc705-8db6-4029-953a-e749070e6db6")
+        [Parameter(Mandatory=$false)] [string] $subscriptionId = "<subscriptionId>")
 
 $aksSPIdName = $clusterName + "-sp-id"
 $publicIpAddressName = "$appgwName-pip"
