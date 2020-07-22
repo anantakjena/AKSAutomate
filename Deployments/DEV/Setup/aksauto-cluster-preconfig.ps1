@@ -16,9 +16,9 @@ param([Parameter(Mandatory=$false)] [string] $resourceGroup = "aks-workshop-rg",
         [Parameter(Mandatory=$false)] [string] $networkTemplateFileName = "aksauto-network-deploy",
         [Parameter(Mandatory=$false)] [string] $acrTemplateFileName = "aksauto-acr-deploy",
         [Parameter(Mandatory=$false)] [string] $kvTemplateFileName = "aksauto-keyvault-deploy",        
-        [Parameter(Mandatory=$false)] [string] $subscriptionId = "6bdcc705-8db6-4029-953a-e749070e6db6",
-        [Parameter(Mandatory=$false)] [string] $objectId = "890c52c5-d318-4185-a548-e07827190ff6",
-        [Parameter(Mandatory=$false)] [string] $baseFolderPath = "/home/devops-vm-ubuntu1804/Deployments/DEV") # on devops machine
+        [Parameter(Mandatory=$false)] [string] $subscriptionId = "<subscriptionId>",
+        [Parameter(Mandatory=$false)] [string] $objectId = "<objectId>",
+        [Parameter(Mandatory=$false)] [string] $baseFolderPath = "<baseFolderPath>") # on devops machine
 
 $vnetRole = "Network Contributor"
 $aksSPIdName = $clusterName + "-sp-id"

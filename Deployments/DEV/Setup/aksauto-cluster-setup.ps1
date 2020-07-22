@@ -19,10 +19,10 @@ param([Parameter(Mandatory=$true)]    [string] $mode,
         [Parameter(Mandatory=$false)] [string] $winNodeUserName = "azureuser",
         [Parameter(Mandatory=$false)] [string] $winNodePassword = "PassW0rd@123",
         [Parameter(Mandatory=$false)] [string] $apiServerAuthIP = "52.255.147.91",
-        [Parameter(Mandatory=$false)] [string] $aadServerAppID = "3adf37ca-d914-43e9-9b24-8c081e0b3a08",
-        [Parameter(Mandatory=$false)] [string] $aadServerAppSecret = "_1hB64xeES67r4.OKDbZdKV-Jewj4~ZAvs",
-        [Parameter(Mandatory=$false)] [string] $aadClientAppID = "70dba699-0fba-4c1d-805e-213acea0a63e",
-        [Parameter(Mandatory=$false)] [string] $aadTenantID = "3851f269-b22b-4de6-97d6-aa9fe60fe301")
+        [Parameter(Mandatory=$false)] [string] $aadServerAppID = "<aadServerAppID>",
+        [Parameter(Mandatory=$false)] [string] $aadServerAppSecret = "<aadServerAppSecret>",
+        [Parameter(Mandatory=$false)] [string] $aadClientAppID = "<aadClientAppID>",
+        [Parameter(Mandatory=$false)] [string] $aadTenantID = "<aadTenantID>")
 
 
 $aksSPIdName = $clusterName + "-sp-id"
